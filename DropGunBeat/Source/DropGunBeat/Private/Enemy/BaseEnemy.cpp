@@ -5,6 +5,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "EngineUtils.h"
 
 // Sets default values
 ABaseEnemy::ABaseEnemy()
@@ -35,6 +36,7 @@ void ABaseEnemy::BeginPlay()
 	Super::BeginPlay();
 	
 	currentHP = maxHP;
+
 }
 
 // Called every frame
