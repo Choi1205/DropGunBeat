@@ -16,3 +16,13 @@ void UEnemyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		enemyState = enemyREF->GetEnemyState();
 	}
 }
+
+void UEnemyAnimInstance::AnimNotify_ShootTiming()
+{
+	enemyREF->ABP_Shoot();
+}
+
+void UEnemyAnimInstance::AnimNotify_Death()
+{
+	enemyREF->ABP_Death();
+}

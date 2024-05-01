@@ -21,10 +21,10 @@ ABaseEnemy::ABaseEnemy()
 	GetMesh()->SetRelativeRotation(FRotator(0.0f, 0.0f, -90.0f));
 
 	vestMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Vest"));
-	vestMeshComp->SetupAttachment(GetMesh());
+	vestMeshComp->SetupAttachment(GetMesh(), FName("VestSocket"));
 
 	helmetMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Helmet"));
-	helmetMeshComp->SetupAttachment(GetMesh());
+	helmetMeshComp->SetupAttachment(GetMesh(), FName("HelmetSocket"));
 
 	gunMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Gun"));
 	gunMeshComp->SetupAttachment(GetMesh(), FName("RightHandSocket"));
@@ -148,15 +148,7 @@ void ABaseEnemy::Aim(float deltaTime)
 
 void ABaseEnemy::Shoot()
 {
-	if (playerREF != nullptr) {
-		laserPoint->Deactivate();
-		FVector aimDir = playerREF->GetActorLocation() - GetActorLocation();
-		FActorSpawnParameters params;
-		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		GetWorld()->SpawnActor<ABulletActor>(bulletFactory, firePoint->GetComponentLocation(), aimDir.Rotation(), params);
-		fireCounter++;
-		enemyState = EEnemyState::AIM;
-	}
+	
 }
 
 void ABaseEnemy::Die()
@@ -187,5 +179,26 @@ void ABaseEnemy::Hit()
 EEnemyState ABaseEnemy::GetEnemyState()
 {
 	return enemyState;
+}
+
+void ABaseEnemy::ABP_Shoot()
+{
+	if (playerREF != nullptr) {
+		laserPoint->Deactivate();
+		FVector aimDir = playerREF->GetActorLocation() - GetActorLocation();
+		FActorSpawnParameters params;
+		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		GetWorld()->SpawnActor<ABulletActor>(bulletFactory, firePoint->GetComponentLocation(), aimDir.Rotation(), params);
+		fireCounter++;
+		FTimerHandle aimTimer;
+		GetWorldTimerManager().SetTimer(aimTimer, FTimerDelegate::CreateLambda([&]() {
+			enemyState = EEnemyState::AIM;
+			}), 0.95f, false);//0.969728f : 발사 후 에임 상태까지 걸리는 시간. 조금 일찍 에임 상태로 돌린다.
+	}
+}
+
+void ABaseEnemy::ABP_Death()
+{
+	Destroy();
 }
 

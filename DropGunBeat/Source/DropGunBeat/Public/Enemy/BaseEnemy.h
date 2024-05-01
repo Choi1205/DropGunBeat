@@ -106,4 +106,7 @@ public:
 	void Hit();
 
 	EEnemyState GetEnemyState();
+
+	void ABP_Shoot();
+	void ABP_Death();
 };

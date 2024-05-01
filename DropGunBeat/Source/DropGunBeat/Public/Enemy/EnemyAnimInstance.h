@@ -24,6 +24,8 @@ public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-private:
-	FTimerHandle deathTimer;
+	UFUNCTION()
+	void AnimNotify_ShootTiming();
+	UFUNCTION()
+	void AnimNotify_Death();
 };
