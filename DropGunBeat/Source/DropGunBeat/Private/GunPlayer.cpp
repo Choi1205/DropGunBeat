@@ -12,6 +12,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/SkeletalMeshComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h>
 #include "Enemy/BaseEnemy.h"
+#include "BulletActor.h"
 #include <../../../../../../../Source/Runtime/Core/Public/Delegates/Delegate.h>
 #include <../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h>
 
@@ -88,7 +89,9 @@ void AGunPlayer::BeginPlay()
 		pc->SetShowMouseCursor(true);
 	}
 
-	//MeshRight->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap);
+	
+
+	MeshLeft->OnComponentHit.AddDynamic(this, &AGunPlayer::OnHit);
 
 }
 
@@ -184,21 +187,35 @@ void AGunPlayer::ONTurn(const FInputActionValue& value)
 }
 
 
-void AGunPlayer::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+//void AGunPlayer::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+//{
+//	// 오버랩으로 하기
+//			
+//			
+//		
+//
+//}
+
+void AGunPlayer::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	// 오버랩으로 하기
-			
-			player = Cast<AGunPlayer>(OtherActor);
-			if (OtherActor->IsA<ABaseEnemy>())
-			{
-				//enemy->Hit();
-			}
-			//IsA(enemy);
-			//{
-			// 
-			//	//enemy->Hit();
-			//
-			//}
+	player = Cast<AGunPlayer>(OtherActor);
+	
+	if (OtherActor->IsA<ABaseEnemy>())
+	{
+		enemy->Hit();
+	}
+	else if (OtherActor->IsA<ABulletActor>())
+	{
+		if (bshield == true)
+		{
+			bshield = false;
+		}
+		else if (bshield == false)
+		{
+			Destroy();
+		}
+
+	}
 
 }
 

@@ -61,13 +61,18 @@ public:
 	void ONFire(const FInputActionValue& value);
 	void ONTurn(const FInputActionValue& value);
 
+	
+	//void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	// 히트
-	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	// 나이아가라
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* NI_Fire;
 
+	bool bshield = true;
 
 protected:
 	virtual void BeginPlay() override;
@@ -104,5 +109,8 @@ protected:
 
 	UPROPERTY()
 	class ABaseEnemy* enemy;
+
+	UPROPERTY()
+	class ABulletActor* bullet;
 
 };
