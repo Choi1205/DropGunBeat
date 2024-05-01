@@ -105,4 +105,5 @@ public:
 
 	void Hit();
 
+	EEnemyState GetEnemyState();
 };

@@ -184,3 +184,8 @@ void ABaseEnemy::Hit()
 
 }
 
+EEnemyState ABaseEnemy::GetEnemyState()
+{
+	return enemyState;
+}
+
