@@ -3,7 +3,7 @@
 
 #include "BulletActor.h"
 #include "Components/SphereComponent.h"
-#include "Particles/ParticleSystemComponent.h"
+#include <../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
 
 // Sets default values
 ABulletActor::ABulletActor()
@@ -20,7 +20,7 @@ ABulletActor::ABulletActor()
 	bulletShape->SetupAttachment(bulletBody);
 	bulletShape->SetRelativeLocation(FVector(0.0f, 0.0f, -50.0f));
 
-	particleComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Particle Component"));
+	particleComp = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Particle Component"));
 	particleComp->SetupAttachment(bulletBody);
 	particleComp->SetWorldScale3D(FVector(10.0f));
 	particleComp->SetAutoActivate(false);
@@ -57,6 +57,6 @@ void ABulletActor::CallHit(class UPrimitiveComponent* OverlappedComp, class AAct
 		UGameplayStatics::ApplyDamage(PlayerREF, damage, nullptr, this, UDamageType::StaticClass());
 	}
 	*/
-	Destroy();
+	//Destroy();
 }
 
