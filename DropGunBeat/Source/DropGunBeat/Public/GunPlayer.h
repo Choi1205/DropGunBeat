@@ -7,12 +7,6 @@
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h>
 #include "GunPlayer.generated.h"
 
-UENUM(BlueprintType)
-enum class EPlayerState : uint8 {
-	IDLE,
-	MOVE,
-	DIE
-};
 
 UCLASS()
 class DROPGUNBEAT_API AGunPlayer : public ACharacter
@@ -48,25 +42,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = Speed)
 	float PlayerMovespeed = 0.5f;
 
-	// 인풋
 	UPROPERTY(EditDefaultsOnly, Category = VR)
 	class UInputMappingContext* IMC_GunPlayer;
 
 	UPROPERTY(EditDefaultsOnly, Category = VR)
 	class UInputAction* IA_Fire;
 
-	UPROPERTY(EditDefaultsOnly, Category = VR)
-	class UInputAction* IA_Turn;
 
 	void ONFire(const FInputActionValue& value);
-	void ONTurn(const FInputActionValue& value);
-
-	// 히트
-	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	// 나이아가라
-	UPROPERTY(EditAnywhere)
-	class UNiagaraSystem* NI_Fire;
 
 
 protected:
@@ -88,21 +71,5 @@ protected:
 
 	UPROPERTY()
 	FVector targetPos;
-
-	//UPROPERTY()
-	//FVector playerfireLoc;
-
-	//UPROPERTY()
-	//FRotator playerfireRot;
-
-
-	UPROPERTY(EditAnywhere, Category = "mysettings")
-	TSubclassOf<UDamageType> DamageType;
 	
-	UPROPERTY()
-	class AGunPlayer* player;
-
-	UPROPERTY()
-	class ABaseEnemy* enemy;
-
 };
