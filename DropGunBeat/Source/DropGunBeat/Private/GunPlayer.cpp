@@ -10,6 +10,10 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Camera/CameraComponent.h>
 #include <../../../../../../../Source/Runtime/HeadMountedDisplay/Public/MotionControllerComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/SkeletalMeshComponent.h>
+#include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h>
+#include "Enemy/BaseEnemy.h"
+#include <../../../../../../../Source/Runtime/Core/Public/Delegates/Delegate.h>
+#include <../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h>
 
 
 AGunPlayer::AGunPlayer()
@@ -53,6 +57,9 @@ AGunPlayer::AGunPlayer()
 		MeshRight->SetWorldLocationAndRotation(FVector(-2.981260, 3.500000, 4.561753), FRotator(25.000000f, 0.000000f, 90.0f));
 	}
 
+
+	//boxComp->SetGenerateOverlapEvents(true);
+
 }
 
 
@@ -64,6 +71,7 @@ void AGunPlayer::BeginPlay()
 	startLoc = GetActorLocation();
 	targetLoc = GetActorLocation() + FVector(1000,0,0);
 
+	
 
 	// 플레이어컨트롤러를 가져오고싶다.
 	auto* pc = Cast<APlayerController>(Controller); // AVRPlayer의 컨트롤러를 가져오는것
@@ -71,7 +79,6 @@ void AGunPlayer::BeginPlay()
 	// UEnhancedInputLocalPlayerSubsystem를 가져와서
 	if (pc != nullptr)
 	{
-		//auto localPlayer = pc->GetPlayerController();
 		auto subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
 		if (subsystem)
 		{
@@ -81,6 +88,7 @@ void AGunPlayer::BeginPlay()
 		pc->SetShowMouseCursor(true);
 	}
 
+	//MeshRight->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap);
 
 }
 
@@ -105,12 +113,15 @@ void AGunPlayer::Tick(float DeltaTime)
 
 	}*/
 
-	/*if (Perpect)
+	/*if (BaseEnemy->Perpect)
 	{
 		Score += 4;
-		Perpect = false;
+		BaseEnemy->Perpect = false;
 	}*/
 
+	// 플레이어 나이아가라 위치
+	/*playerfireLoc = GetActorLocation()+FVector(100,0,0); 
+	playerfireRot = GetActorRotation();*/
 }
 
 
@@ -126,7 +137,7 @@ void AGunPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	{
 		// 함수를 인풋 컴포넌트에 연결한다.
 		enhancedInputComponent->BindAction(IA_Fire, ETriggerEvent::Started, this, &AGunPlayer::ONFire);
-		enhancedInputComponent->BindAction(IA_Fire, ETriggerEvent::Completed, this, &AGunPlayer::ONFire);
+		enhancedInputComponent->BindAction(IA_Turn, ETriggerEvent::Triggered, this, &AGunPlayer::ONTurn);
 	}
 
 }
@@ -134,6 +145,12 @@ void AGunPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 // 총알 발사 인풋
 void AGunPlayer::ONFire(const FInputActionValue& value)
 {
+	
+	if (NI_Fire != nullptr)
+	{
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NI_Fire, MeshRight->GetComponentLocation(),MeshRight->GetComponentRotation()); //무기에붙여야함
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("2222222"));
 	bool isPressed = value.Get<bool>();   // .이 캐스트의 의미 , 개발자가 어떻게 만들지 예측할 수 없어서 이런식으로 작성
 	if (isPressed)
@@ -149,14 +166,42 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 		if (GetWorld()->LineTraceSingleByChannel(hitInfo, WorldPosition, WorldPosition + WorldDirection * 10000, ECC_Visibility))
 		{
 			targetPos = hitInfo.ImpactPoint;    //히트된 좌표
-			targetPos.Z = GetActorLocation().Z;   //z 좌표를 플레이어의 좌표로 설정
+			
+			//targetPos.Z = GetActorLocation().Z;   //z 좌표를 플레이어의 좌표로 설정
 
 
 			// 좌표 설정 확인
 			DrawDebugSphere(GetWorld(), hitInfo.ImpactPoint, 10.0f, 15, FColor::Red, false, 3, 1, 1);
 			UE_LOG(LogTemp, Warning, TEXT("%.1f, %.1f, %.1f"), hitInfo.ImpactPoint.X, hitInfo.ImpactPoint.Y, hitInfo.ImpactPoint.Z);
-
 		}
-
 	}
 }
+
+void AGunPlayer::ONTurn(const FInputActionValue& value)
+{
+	float v = value.Get<float>();
+	AddControllerYawInput(v);
+}
+
+
+void AGunPlayer::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	// 오버랩으로 하기
+			
+			player = Cast<AGunPlayer>(OtherActor);
+			if (OtherActor->IsA<ABaseEnemy>())
+			{
+				//enemy->Hit();
+			}
+			//IsA(enemy);
+			//{
+			// 
+			//	//enemy->Hit();
+			//
+			//}
+
+}
+
+
+
+	

@@ -7,7 +7,7 @@
 #include "BaseEnemy.generated.h"
 
 UENUM(BlueprintType)
-enum class EEnemyState : uint8 {
+enum class EPhaseState : uint8 {
 	IDLE,
 	MOVE,
 	AIM,
@@ -40,25 +40,16 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class USceneComponent* firePoint;
 
-	UPROPERTY(EditDefaultsOnly)
-	class UNiagaraComponent* laserPoint;
-
 private:
-
-	//////////
-	// 함수 //
-	//////////
-
-	void FindPlayer();
 
 	//////////
 	// 변수 //
 	//////////
 
 	UPROPERTY(VisibleAnywhere, Category = "EnemyStat")
-	EEnemyState enemyState;
+	EPhaseState enemyState;
 	UPROPERTY(EditDefaultsOnly, Category = "EnemyStat|HP")
-	int32 maxHP = 1;
+	int32 maxHP;
 	UPROPERTY(VisibleAnywhere, Category = "EnemyStat|HP")
 	int32 currentHP = 1;
 	UPROPERTY(EditAnywhere, Category = "EnemyStat|Attack")
@@ -67,8 +58,6 @@ private:
 	int32 fireCounter;
 	UPROPERTY(EditAnywhere, Category = "EnemyStat|Attack")
 	float fireCooldown = 3.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "EnemyStat|Attack")
-	TSubclassOf<class ABulletActor> bulletFactory;
 	UPROPERTY(EditAnywhere, Category = "EnemyStat")
 	float idleCooldown = 1.0f;
 	UPROPERTY(VisibleAnywhere, Category = "EnemyStat")
@@ -77,8 +66,6 @@ private:
 	FVector targetPlace;
 	UPROPERTY(EditAnywhere, Category = "EnemyStat|Move")
 	float speed = 1.0f;
-	UPROPERTY(VisibleAnywhere, Category = "EnemyStat")
-	bool bIsDead = false;
 
 	class AGunPlayer* playerREF;
 
@@ -102,7 +89,5 @@ public:
 	void Aim(float deltaTime);
 	void Shoot();
 	void Die();
-
-	void Hit();
 
 };

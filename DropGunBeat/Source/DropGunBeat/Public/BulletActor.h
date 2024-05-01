@@ -22,7 +22,7 @@ public:
 	class UStaticMeshComponent* bulletShape;
 
 	UPROPERTY(VisibleAnywhere)
-	class UNiagaraComponent* particleComp;
+	class UParticleSystemComponent* particleComp;
 
 	class VRPlayer* playerREF;
 

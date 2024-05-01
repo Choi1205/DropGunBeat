@@ -5,11 +5,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/LineBatchComponent.h"
 #include "EngineUtils.h"
-#include "GunPlayer.h"
-#include <../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
-#include "BulletActor.h"
 
 // Sets default values
 ABaseEnemy::ABaseEnemy()
@@ -27,15 +23,10 @@ ABaseEnemy::ABaseEnemy()
 	helmetMeshComp->SetupAttachment(GetMesh());
 
 	gunMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Gun"));
-	gunMeshComp->SetupAttachment(GetMesh(), FName("RightHandSocket"));
+	gunMeshComp->SetupAttachment(GetMesh());
 
 	firePoint = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FirePoint"));
 	firePoint->SetupAttachment(gunMeshComp);
-	firePoint->SetRelativeLocationAndRotation(FVector(10.0f, 0.0f, 30.0f), FRotator(90.0f, 0.0f, 180.0f));
-
-	laserPoint = CreateDefaultSubobject<UNiagaraComponent>(TEXT("LaserPointer"));
-	laserPoint->SetupAttachment(firePoint);
-	laserPoint->SetAutoActivate(false);
 
 }
 
@@ -46,7 +37,6 @@ void ABaseEnemy::BeginPlay()
 	
 	currentHP = maxHP;
 
-	FindPlayer();
 }
 
 // Called every frame
@@ -56,19 +46,19 @@ void ABaseEnemy::Tick(float DeltaTime)
 
 	switch (enemyState)
 	{
-	case EEnemyState::IDLE:
+	case EPhaseState::IDLE:
 		Idle(DeltaTime);
 		break;
-	case EEnemyState::MOVE:
+	case EPhaseState::MOVE:
 		move(DeltaTime);
 		break;
-	case EEnemyState::AIM:
+	case EPhaseState::AIM:
 		Aim(DeltaTime);
 		break;
-	case EEnemyState::SHOOT:
+	case EPhaseState::SHOOT:
 		Shoot();
 		break;
-	case EEnemyState::DIE:
+	case EPhaseState::DIE:
 		Die();
 		break;
 	default:
@@ -84,36 +74,20 @@ void ABaseEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 }
 
-void ABaseEnemy::FindPlayer()
-{
-	TArray<AGunPlayer*> players;
-
-	for(TActorIterator<AGunPlayer> iter(GetWorld()); iter; ++iter) {
-		players.Add(*iter);
-	}
-
-	if(players.Num() > 0){
-		playerREF = players[0];
-	}
-	else{
-		playerREF = nullptr;
-	}
-}
-
 void ABaseEnemy::Idle(float deltaTime)
 {
 	currentTimer = FMath::Min(currentTimer + deltaTime, idleCooldown);
 	if(currentTimer == idleCooldown){
 		currentTimer = 0.0f;
 		SetActorRotation((targetPlace - GetActorLocation()).Rotation());
-		enemyState = EEnemyState::MOVE;
+		enemyState = EPhaseState::MOVE;
 	}
 }
 
 void ABaseEnemy::move(float deltaTime)
 {
 	if(FVector::Distance(GetActorLocation(), targetPlace) < 34.0f) {
-		enemyState = EEnemyState::AIM;
+		enemyState = EPhaseState::AIM;
 	}
 	else {
 		FVector toward = targetPlace - GetActorLocation();
@@ -124,63 +98,22 @@ void ABaseEnemy::move(float deltaTime)
 
 void ABaseEnemy::Aim(float deltaTime)
 {
-	if (numToFire > fireCounter) {
-		currentTimer = FMath::Min(currentTimer + deltaTime, fireCooldown);
-	}
-
+	currentTimer = FMath::Min(currentTimer + deltaTime, fireCooldown);
 	if (currentTimer == fireCooldown) {
 		currentTimer = 0.0f;
-		enemyState = EEnemyState::SHOOT;
+		enemyState = EPhaseState::SHOOT;
 	}
 	else {
 		//플레이어를 조준하는 명령어를 넣기
-		if(playerREF != nullptr) {
-			FVector aimDir = playerREF->GetActorLocation() - GetActorLocation();
-			if (numToFire > fireCounter) {
-				laserPoint->SetWorldRotation(aimDir.Rotation());
-				laserPoint->Activate(true);
-			}
-			aimDir.Z = 0.0f;
-			SetActorRotation(aimDir.Rotation());
-		}
 	}
 }
 
 void ABaseEnemy::Shoot()
 {
-	if (playerREF != nullptr) {
-		laserPoint->Deactivate();
-		FVector aimDir = playerREF->GetActorLocation() - GetActorLocation();
-		FActorSpawnParameters params;
-		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		GetWorld()->SpawnActor<ABulletActor>(bulletFactory, firePoint->GetComponentLocation(), aimDir.Rotation(), params);
-		fireCounter++;
-		enemyState = EEnemyState::AIM;
-	}
+	
 }
 
 void ABaseEnemy::Die()
 {
-	if (!bIsDead) {
-		bIsDead = true;
-		//타이머로 죽는 애니메이션 처리
-	}
-}
-
-void ABaseEnemy::Hit()
-{
-	if(enemyState != EEnemyState::DIE) {
-		currentHP--;
-		if(currentHP > 0){
-			//맞는 이펙트 재생
-		}
-		else {
-			enemyState = EEnemyState::DIE;
-			//죽는 이펙트 재생
-		}
-	}
-	
-
-
 }
 
