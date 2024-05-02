@@ -15,6 +15,9 @@
 #include "BulletActor.h"
 #include <../../../../../../../Source/Runtime/Core/Public/Delegates/Delegate.h>
 #include <../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h>
+#include <../../../../../../../Source/Runtime/Engine/Classes/Components/BoxComponent.h>
+#include <../../../../../../../Source/Runtime/Engine/Classes/Components/SphereComponent.h>
+#include "PlayerWidget.h"
 
 
 AGunPlayer::AGunPlayer()
@@ -26,30 +29,34 @@ AGunPlayer::AGunPlayer()
 	VRCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("VRCamera"));
 	VRCamera->SetupAttachment(RootComponent);
 
+	// 박스 컴포넌트를 카메라에 붙여서 벽에 닿거나 총알에 맞으면 데미지를 받는다.
+	boxcomp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
+	boxcomp->SetupAttachment(RootComponent);
+
 	// 모션컨트롤러 왼손, 오른손 생성하고 루트에 붙이고 싶다.
-	MotionLeft = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MotionLeft"));
-	MotionLeft->SetTrackingMotionSource(TEXT("Left"));
-	MotionLeft->SetupAttachment(RootComponent);
+	//MotionLeft = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MotionLeft"));
+	//MotionLeft->SetTrackingMotionSource(TEXT("Left"));
+	//MotionLeft->SetupAttachment(RootComponent);
 
 	MotionRight = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MotionRight"));
 	MotionRight->SetTrackingMotionSource(TEXT("Right"));
 	MotionRight->SetupAttachment(RootComponent);
 
 	// 왼손, 오른손 스켈레탈메시컴포넌트를 만들어서 모션컨트롤러에 붙이고싶다.
-	MeshLeft = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshLeft"));
-	MeshLeft->SetupAttachment(MotionLeft);
+	//MeshLeft = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshLeft"));
+	//MeshLeft->SetupAttachment(MotionLeft);
 	MeshRight = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshRight"));
 	MeshRight->SetupAttachment(MotionRight);
 
 	// 왼손, 오른손 스켈레탈 메시를로드해서 적용하고싶다.
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMeshLeft(TEXT("/Script/Engine.SkeletalMesh'/Game/assets/pistol-desert-eagle-weapon-model-cs2/DEAGLE.DEAGLE'"));
-	// 로드 성공했다면 적용하고싶다.
-	if (TempMeshLeft.Succeeded())
-	{
-		MeshLeft->SetSkeletalMesh(TempMeshLeft.Object);
-		MeshLeft->SetWorldLocationAndRotation(FVector((6.7f,-11.25f,1.97f)), FRotator((75.0f,  0.0f,  180.0f)));
-		MeshLeft->SetRelativeScale3D(FVector(20.0f));
-	}
+	//ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMeshLeft(TEXT("/Script/Engine.SkeletalMesh'/Game/assets/pistol-desert-eagle-weapon-model-cs2/DEAGLE.DEAGLE'"));
+	//// 로드 성공했다면 적용하고싶다.
+	//if (TempMeshLeft.Succeeded())
+	//{
+	//	MeshLeft->SetSkeletalMesh(TempMeshLeft.Object);
+	//	MeshLeft->SetWorldLocationAndRotation(FVector((6.7f,-11.25f,1.97f)), FRotator((75.0f,  0.0f,  180.0f)));
+	//	MeshLeft->SetRelativeScale3D(FVector(20.0f));
+	//}
 
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMeshRight(TEXT("/Script/Engine.SkeletalMesh'/Game/assets/pistol-desert-eagle-weapon-model-cs2/DEAGLE.DEAGLE'"));
 	// 로드 성공했다면 적용하고싶다.
@@ -60,7 +67,16 @@ AGunPlayer::AGunPlayer()
 		MeshRight->SetRelativeScale3D(FVector(20.0f));
 	}
 
-	MeshLeft->SetGenerateOverlapEvents(true); // 콜리전으로 변경해야함
+	// 오른손과 왼손에 컴포넌트 컬리전을 넣어서 근접공격을 만든다
+	//LeftHitComp = CreateDefaultSubobject<USphereComponent>(TEXT("LeftHitComp"));
+	//LeftHitComp->SetupAttachment(MeshLeft);
+
+
+	RightHitComp = CreateDefaultSubobject<USphereComponent>(TEXT("RightHitComp"));
+	RightHitComp->SetupAttachment(MeshRight);
+
+
+	//MeshLeft->SetGenerateOverlapEvents(true); // 콜리전으로 변경해야함
 	MeshRight->SetGenerateOverlapEvents(true);
 }
 
@@ -72,7 +88,7 @@ void AGunPlayer::BeginPlay()
 	startLoc = GetActorLocation();
 	targetLoc = GetActorLocation() + FVector(1000,0,0);
 
-	
+	bulletFactory = 15;
 
 	// 플레이어컨트롤러를 가져오고싶다.
 	auto* pc = Cast<APlayerController>(Controller); // AVRPlayer의 컨트롤러를 가져오는것
@@ -91,8 +107,19 @@ void AGunPlayer::BeginPlay()
 
 	
 	MeshRight->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap); // 콜리전으로 변경해야함
-	MeshLeft->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap);
+	//MeshLeft->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap);
 
+	//// 위젯
+	//if (TPlayerWidget)
+	//{
+	//	PlayerWidget = Cast<UPlayerWidget>(CreateWidget(GetWorld(), TPlayerWidget));
+	//	if (PlayerWidget)
+	//	{
+	//		// 함수화 해주는 것이 좋아보이지만 기능 구현만을 위해 풀어 썼다.
+	//		PlayerWidget->SetCurrentBullet()->SetText(FText::FromString(PlayerWidget->CurrentBullet));
+	//		PlayerWidget->AddToViewport();
+	//	}
+	//}
 }
 
 
@@ -122,6 +149,12 @@ void AGunPlayer::Tick(float DeltaTime)
 	// 플레이어 나이아가라 위치
 	/*playerfireLoc = GetActorLocation()+FVector(100,0,0); 
 	playerfireRot = GetActorRotation();*/
+
+	if (bshield == false)
+	{
+		shieldrecovery();
+	}
+
 }
 
 
@@ -144,41 +177,46 @@ void AGunPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 // 총알 발사 인풋
 void AGunPlayer::ONFire(const FInputActionValue& value)
 {
-	
-	if (NI_Fire != nullptr)
-	{
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NI_Fire, MeshRight->GetComponentLocation(),MeshRight->GetComponentRotation()); //무기에붙여야함
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("2222222"));
-	bool isPressed = value.Get<bool>();   // .이 캐스트의 의미 , 개발자가 어떻게 만들지 예측할 수 없어서 이런식으로 작성
-	if (isPressed)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("1111111"));
-		//마우스 커서 입력값 확인
-		FVector WorldPosition, WorldDirection;
-		APlayerController* MyController = Cast<APlayerController>(GetController());
-		MyController->DeprojectMousePositionToWorld(WorldPosition, WorldDirection);
-
-		FHitResult hitInfo;   // 마우스가 히트되었을때
-
-		if (GetWorld()->LineTraceSingleByChannel(hitInfo, WorldPosition, WorldPosition + WorldDirection * 10000, ECC_Visibility))
+	if (bulletFactory > 0)
+	{ 
+		if (NI_Fire != nullptr)
 		{
-			targetPos = hitInfo.ImpactPoint;    //히트된 좌표
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NI_Fire, MeshRight->GetComponentLocation(),MeshRight->GetComponentRotation()); //무기에붙여야함
+		}
 
-			//targetPos.Z = GetActorLocation().Z;   //z 좌표를 플레이어의 좌표로 설정
+		UE_LOG(LogTemp, Warning, TEXT("2222222"));
+		bool isPressed = value.Get<bool>();   // .이 캐스트의 의미 , 개발자가 어떻게 만들지 예측할 수 없어서 이런식으로 작성
+		if (isPressed)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("1111111"));
+			//마우스 커서 입력값 확인
+			FVector WorldPosition, WorldDirection;
+			APlayerController* MyController = Cast<APlayerController>(GetController());
+			MyController->DeprojectMousePositionToWorld(WorldPosition, WorldDirection);
+
+			FHitResult hitInfo;   // 마우스가 히트되었을때
+
+			if (GetWorld()->LineTraceSingleByChannel(hitInfo, WorldPosition, WorldPosition + WorldDirection * 10000, ECC_Visibility))
+			{
+				targetPos = hitInfo.ImpactPoint;    //히트된 좌표
+
+				//targetPos.Z = GetActorLocation().Z;   //z 좌표를 플레이어의 좌표로 설정
 			
 
-			// 좌표 설정 확인
-			DrawDebugSphere(GetWorld(), hitInfo.ImpactPoint, 10.0f, 15, FColor::Red, false, 3, 1, 1);
-			UE_LOG(LogTemp, Warning, TEXT("%.1f, %.1f, %.1f"), hitInfo.ImpactPoint.X, hitInfo.ImpactPoint.Y, hitInfo.ImpactPoint.Z);
-			enemy = Cast<ABaseEnemy>(hitInfo.GetActor());
-			if (enemy != nullptr)
-			{
-			enemy->Hit();
+				// 좌표 설정 확인
+				DrawDebugSphere(GetWorld(), hitInfo.ImpactPoint, 10.0f, 15, FColor::Red, false, 3, 1, 1);
+				UE_LOG(LogTemp, Warning, TEXT("%.1f, %.1f, %.1f"), hitInfo.ImpactPoint.X, hitInfo.ImpactPoint.Y, hitInfo.ImpactPoint.Z);
+				enemy = Cast<ABaseEnemy>(hitInfo.GetActor());
+				if (enemy != nullptr)
+				{
+				enemy->Hit();
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(3.0f));
+				}
 			}
 		}
 	}
+	bulletFactory += -1;
+	
 }
 
 
@@ -198,7 +236,6 @@ void AGunPlayer::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 }
 
 
-
 void AGunPlayer::OnDamaged()
 {
 	if (bshield == true)
@@ -209,6 +246,20 @@ void AGunPlayer::OnDamaged()
 	{
 		Destroy();
 	}
+}
+
+void AGunPlayer::shieldrecovery()
+{
+	/*if (enemy->Hit());
+	{
+		recovery += 1;
+		if (recovery == 3)
+		{
+			bshield = true;
+		}
+	}*/
+
+	
 }
 
 

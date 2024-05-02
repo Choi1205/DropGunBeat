@@ -44,6 +44,14 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class USkeletalMeshComponent* MeshRight;
 
+	UPROPERTY(EditDefaultsOnly)
+	class USphereComponent* LeftHitComp;
+
+	UPROPERTY(EditDefaultsOnly)
+	class USphereComponent* RightHitComp;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* boxcomp;
 
 	UPROPERTY(EditAnywhere, Category = Speed)
 	float PlayerMovespeed = 0.5f;
@@ -64,16 +72,33 @@ public:
 	//void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	// ¿À¹ö·¦
-		UFUNCTION()
+	UFUNCTION()
 	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UFUNCTION()
 	void OnDamaged();
+
+	UFUNCTION()
+	void shieldrecovery();
 
 	// ³ªÀÌ¾Æ°¡¶ó
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* NI_Fire;
 
 	bool bshield = true;
+
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* FX_FireHit;
+	
+	// ÅºÃ¢
+	UPROPERTY()
+	int32 bulletFactory = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Widget")
+	TSubclassOf<UUserWidget> TPlayerWidget;
+
+	UPROPERTY()
+	class UPlayerWidget* PlayerWidget;
 
 protected:
 	virtual void BeginPlay() override;
@@ -85,6 +110,10 @@ protected:
 
 	UPROPERTY()
 	int32 Score =0;
+
+	// ½¯µåÀç»ý
+	UPROPERTY()
+	int32 recovery = 0;
 
 	UPROPERTY()
 	FVector targetLoc;
