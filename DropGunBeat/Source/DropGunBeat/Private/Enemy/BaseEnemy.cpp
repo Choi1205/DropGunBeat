@@ -192,6 +192,7 @@ void ABaseEnemy::Die()
 bool ABaseEnemy::Hit()
 {
 	UE_LOG(LogTemp, Warning, TEXT("%f"), musicREF->BeatAccuracy());
+	//-0.5 의 절대값으로 들어오므로, 0.5가 가장 정확, 0에 가까울수록 부정확.
 	if(enemyState != EEnemyState::DIE) {
 		currentHP--;
 		if(currentHP > 0){

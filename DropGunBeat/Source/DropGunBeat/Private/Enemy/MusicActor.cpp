@@ -23,6 +23,7 @@ void AMusicActor::BeginPlay()
 {
 	Super::BeginPlay();
 	beatTime = 60.0f / BPM;
+	currentTime = currentTime + (beatTime/4);
 }
 
 // Called every frame
@@ -39,7 +40,7 @@ float AMusicActor::BeatAccuracy()
 	float vaule = (currentTime / beatTime) * 100;
 	int32 v = ((int32)vaule) % 100;
 	float fv = (float)v / 100.0f;
-	
+	UE_LOG(LogTemp, Warning, TEXT("fv : %f"), fv);
 	return FMath::Abs(fv - 0.5f);
 }
 
