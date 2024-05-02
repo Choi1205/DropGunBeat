@@ -4,6 +4,7 @@
 #include "BulletActor.h"
 #include "Components/SphereComponent.h"
 #include <../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
+#include "GunPlayer.h"
 
 // Sets default values
 ABulletActor::ABulletActor()
@@ -50,13 +51,13 @@ void ABulletActor::Tick(float DeltaTime)
 
 void ABulletActor::CallHit(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	/*
-	PlayerREF = Cast<ABloodBornCharacter>(OtherActor);
+	
+	AGunPlayer* playerREF = Cast<AGunPlayer>(OtherActor);
 
-	if (PlayerREF) {
-		UGameplayStatics::ApplyDamage(PlayerREF, damage, nullptr, this, UDamageType::StaticClass());
+	if (playerREF) {
+		//playerREF->OnDamaged();
 	}
-	*/
-	//Destroy();
+	
+	Destroy();
 }
 
