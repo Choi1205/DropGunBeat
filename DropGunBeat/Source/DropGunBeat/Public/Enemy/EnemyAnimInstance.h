@@ -25,7 +25,5 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 	UFUNCTION()
-	void AnimNotify_ShootTiming();
-	UFUNCTION()
 	void AnimNotify_Death();
 };

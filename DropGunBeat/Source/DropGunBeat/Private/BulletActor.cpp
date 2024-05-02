@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include <../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
 #include "GunPlayer.h"
+#include "Enemy/BaseEnemy.h"
 
 // Sets default values
 ABulletActor::ABulletActor()
@@ -51,7 +52,11 @@ void ABulletActor::Tick(float DeltaTime)
 
 void ABulletActor::CallHit(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	
+	ABaseEnemy* enemy = Cast<ABaseEnemy>(OtherActor);
+	if(enemy == nullptr){
+		return;
+	}
+
 	AGunPlayer* playerREF = Cast<AGunPlayer>(OtherActor);
 
 	if (playerREF) {

@@ -17,11 +17,6 @@ void UEnemyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 }
 
-void UEnemyAnimInstance::AnimNotify_ShootTiming()
-{
-	enemyREF->ABP_Shoot();
-}
-
 void UEnemyAnimInstance::AnimNotify_Death()
 {
 	enemyREF->ABP_Death();

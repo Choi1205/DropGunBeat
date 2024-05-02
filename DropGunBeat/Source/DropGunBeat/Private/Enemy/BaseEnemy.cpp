@@ -8,8 +8,10 @@
 #include "Components/LineBatchComponent.h"
 #include "EngineUtils.h"
 #include "GunPlayer.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Camera/CameraComponent.h>
 #include <../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
 #include "BulletActor.h"
+#include "Enemy/MusicActor.h"
 
 // Sets default values
 ABaseEnemy::ABaseEnemy()
@@ -47,6 +49,7 @@ void ABaseEnemy::BeginPlay()
 	currentHP = maxHP;
 
 	FindPlayer();
+	FindMusic();
 }
 
 // Called every frame
@@ -100,6 +103,22 @@ void ABaseEnemy::FindPlayer()
 	}
 }
 
+void ABaseEnemy::FindMusic()
+{
+	TArray<AMusicActor*> musics;
+
+	for (TActorIterator<AMusicActor> iter(GetWorld()); iter; ++iter) {
+		musics.Add(*iter);
+	}
+
+	if (musics.Num() > 0) {
+		musicREF = musics[0];
+	}
+	else {
+		musicREF = nullptr;
+	}
+}
+
 void ABaseEnemy::Idle(float deltaTime)
 {
 	currentTimer = FMath::Min(currentTimer + deltaTime, idleCooldown);
@@ -135,7 +154,7 @@ void ABaseEnemy::Aim(float deltaTime)
 	else {
 		//플레이어를 조준하는 명령어를 넣기
 		if(playerREF != nullptr) {
-			FVector aimDir = playerREF->GetActorLocation() - GetActorLocation();
+			FVector aimDir = playerREF->VRCamera->GetComponentLocation() - GetActorLocation();
 			if (numToFire > fireCounter) {
 				laserPoint->SetWorldRotation(aimDir.Rotation());
 				laserPoint->Activate(true);
@@ -148,7 +167,18 @@ void ABaseEnemy::Aim(float deltaTime)
 
 void ABaseEnemy::Shoot()
 {
-	
+	if (playerREF != nullptr && numToFire > fireCounter) {
+		laserPoint->Deactivate();
+		FVector aimDir = playerREF->VRCamera->GetComponentLocation() - GetActorLocation();
+		FActorSpawnParameters params;
+		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		GetWorld()->SpawnActor<ABulletActor>(bulletFactory, firePoint->GetComponentLocation(), aimDir.Rotation(), params);
+		fireCounter++;
+		FTimerHandle aimTimer;
+		GetWorldTimerManager().SetTimer(aimTimer, FTimerDelegate::CreateLambda([&]() {
+			enemyState = EEnemyState::AIM;
+			}), 2.0f, false);
+	}
 }
 
 void ABaseEnemy::Die()
@@ -159,42 +189,31 @@ void ABaseEnemy::Die()
 	}
 }
 
-void ABaseEnemy::Hit()
+bool ABaseEnemy::Hit()
 {
+	UE_LOG(LogTemp, Warning, TEXT("%f"), musicREF->BeatAccuracy());
 	if(enemyState != EEnemyState::DIE) {
 		currentHP--;
 		if(currentHP > 0){
 			//맞는 이펙트 재생
+
+			return false;
 		}
 		else {
 			enemyState = EEnemyState::DIE;
 			//죽는 이펙트 재생
+
+			return true;
 		}
 	}
-	
-
-
+	else{
+		return true;
+	}
 }
 
 EEnemyState ABaseEnemy::GetEnemyState()
 {
 	return enemyState;
-}
-
-void ABaseEnemy::ABP_Shoot()
-{
-	if (playerREF != nullptr) {
-		laserPoint->Deactivate();
-		FVector aimDir = playerREF->GetActorLocation() - GetActorLocation();
-		FActorSpawnParameters params;
-		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		GetWorld()->SpawnActor<ABulletActor>(bulletFactory, firePoint->GetComponentLocation(), aimDir.Rotation(), params);
-		fireCounter++;
-		FTimerHandle aimTimer;
-		GetWorldTimerManager().SetTimer(aimTimer, FTimerDelegate::CreateLambda([&]() {
-			enemyState = EEnemyState::AIM;
-			}), 0.95f, false);//0.969728f : 발사 후 에임 상태까지 걸리는 시간. 조금 일찍 에임 상태로 돌린다.
-	}
 }
 
 void ABaseEnemy::ABP_Death()

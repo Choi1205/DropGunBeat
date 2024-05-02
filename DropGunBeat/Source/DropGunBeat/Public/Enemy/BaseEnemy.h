@@ -15,6 +15,13 @@ enum class EEnemyState : uint8 {
 	DIE
 };
 
+UENUM(BlueprintType)
+enum class EAccuracy : uint8 {
+	PERPECT,
+	GOOD,
+	BAD
+};
+
 UCLASS()
 class DROPGUNBEAT_API ABaseEnemy : public ACharacter
 {
@@ -50,6 +57,7 @@ private:
 	//////////
 
 	void FindPlayer();
+	void FindMusic();
 
 	//////////
 	// º¯¼ö //
@@ -82,6 +90,8 @@ private:
 
 	class AGunPlayer* playerREF;
 
+	class AMusicActor* musicREF;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -103,10 +113,9 @@ public:
 	void Shoot();
 	void Die();
 
-	void Hit();
+	bool Hit();
 
 	EEnemyState GetEnemyState();
 
-	void ABP_Shoot();
 	void ABP_Death();
 };
