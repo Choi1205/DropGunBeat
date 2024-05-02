@@ -42,27 +42,27 @@ AGunPlayer::AGunPlayer()
 	MeshRight->SetupAttachment(MotionRight);
 
 	// 왼손, 오른손 스켈레탈 메시를로드해서 적용하고싶다.
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMeshLeft(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/MannequinsXR/Meshes/SKM_MannyXR_left.SKM_MannyXR_left'"));
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMeshLeft(TEXT("/Script/Engine.SkeletalMesh'/Game/assets/pistol-desert-eagle-weapon-model-cs2/DEAGLE.DEAGLE'"));
 	// 로드 성공했다면 적용하고싶다.
 	if (TempMeshLeft.Succeeded())
 	{
 		MeshLeft->SetSkeletalMesh(TempMeshLeft.Object);
-		MeshLeft->SetWorldLocationAndRotation(FVector(-2.981260, -3.500000, 4.561753), FRotator(-25.000000f, -180.0f, 90.0f));
+		MeshLeft->SetWorldLocationAndRotation(FVector((6.7f,-11.25f,1.97f)), FRotator((75.0f,  0.0f,  180.0f)));
+		MeshLeft->SetRelativeScale3D(FVector(20.0f));
 	}
 
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMeshRight(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/MannequinsXR/Meshes/SKM_MannyXR_right.SKM_MannyXR_right'"));
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMeshRight(TEXT("/Script/Engine.SkeletalMesh'/Game/assets/pistol-desert-eagle-weapon-model-cs2/DEAGLE.DEAGLE'"));
 	// 로드 성공했다면 적용하고싶다.
 	if (TempMeshRight.Succeeded())
 	{
 		MeshRight->SetSkeletalMesh(TempMeshRight.Object);
-		MeshRight->SetWorldLocationAndRotation(FVector(-2.981260, 3.500000, 4.561753), FRotator(25.000000f, 0.000000f, 90.0f));
+		MeshRight->SetWorldLocationAndRotation(FVector((6.68f, 10.7f, 1.97f)), FRotator((75.0f, 0.0f, 180.0f)));
+		MeshRight->SetRelativeScale3D(FVector(20.0f));
 	}
 
-
-	//boxComp->SetGenerateOverlapEvents(true);
-
+	MeshLeft->SetGenerateOverlapEvents(true); // 콜리전으로 변경해야함
+	MeshRight->SetGenerateOverlapEvents(true);
 }
-
 
 
 void AGunPlayer::BeginPlay()
@@ -90,8 +90,8 @@ void AGunPlayer::BeginPlay()
 	}
 
 	
-
-	MeshLeft->OnComponentHit.AddDynamic(this, &AGunPlayer::OnHit);
+	MeshRight->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap); // 콜리전으로 변경해야함
+	MeshLeft->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap);
 
 }
 
@@ -99,10 +99,7 @@ void AGunPlayer::BeginPlay()
 void AGunPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 	moveTime += DeltaTime;
-
-	
 
 	if (moveTime < endTime)
 	{
@@ -112,13 +109,13 @@ void AGunPlayer::Tick(float DeltaTime)
 	/*else
 	{
 		moveTime = 0;
-		Score = UE_Log 
+		UE_Log(LogTemp, warning, TEXT("%s"), Score);
 
 	}*/
 
 	/*if (BaseEnemy->Perpect)
 	{
-		Score += 4;
+		Score += 400;
 		BaseEnemy->Perpect = false;
 	}*/
 
@@ -134,8 +131,6 @@ void AGunPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 
-
-
 	if (enhancedInputComponent != nullptr)
 	{
 		// 함수를 인풋 컴포넌트에 연결한다.
@@ -144,6 +139,7 @@ void AGunPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	}
 
 }
+
 
 // 총알 발사 인풋
 void AGunPlayer::ONFire(const FInputActionValue& value)
@@ -169,16 +165,22 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 		if (GetWorld()->LineTraceSingleByChannel(hitInfo, WorldPosition, WorldPosition + WorldDirection * 10000, ECC_Visibility))
 		{
 			targetPos = hitInfo.ImpactPoint;    //히트된 좌표
-			
-			//targetPos.Z = GetActorLocation().Z;   //z 좌표를 플레이어의 좌표로 설정
 
+			//targetPos.Z = GetActorLocation().Z;   //z 좌표를 플레이어의 좌표로 설정
+			
 
 			// 좌표 설정 확인
 			DrawDebugSphere(GetWorld(), hitInfo.ImpactPoint, 10.0f, 15, FColor::Red, false, 3, 1, 1);
 			UE_LOG(LogTemp, Warning, TEXT("%.1f, %.1f, %.1f"), hitInfo.ImpactPoint.X, hitInfo.ImpactPoint.Y, hitInfo.ImpactPoint.Z);
+			enemy = Cast<ABaseEnemy>(hitInfo.GetActor());
+			if (enemy != nullptr)
+			{
+			enemy->Hit();
+			}
 		}
 	}
 }
+
 
 void AGunPlayer::ONTurn(const FInputActionValue& value)
 {
@@ -186,37 +188,27 @@ void AGunPlayer::ONTurn(const FInputActionValue& value)
 	AddControllerYawInput(v);
 }
 
-
-//void AGunPlayer::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-//{
-//	// 오버랩으로 하기
-//			
-//			
-//		
-//
-//}
-
-void AGunPlayer::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void AGunPlayer::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	player = Cast<AGunPlayer>(OtherActor);
-	
 	if (OtherActor->IsA<ABaseEnemy>())
 	{
 		enemy->Hit();
 	}
-	else if (OtherActor->IsA<ABulletActor>())
+
+}
+
+
+
+void AGunPlayer::OnDamaged()
+{
+	if (bshield == true)
 	{
-		if (bshield == true)
-		{
-			bshield = false;
-		}
-		else if (bshield == false)
-		{
-			Destroy();
-		}
-
+		bshield = false;
 	}
-
+	else if (bshield == false)
+	{
+		Destroy();
+	}
 }
 
 
