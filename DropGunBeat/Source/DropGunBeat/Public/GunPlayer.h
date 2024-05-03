@@ -66,6 +66,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = VR)
 	class UInputAction* IA_Turn;
 
+	UPROPERTY(VisibleAnywhere, Category="MySettings|Components")
+	class UWidgetComponent* PlayerGunWidgetComp;
+
+	UPROPERTY(EditAnywhere, Category = "Widget")
+	class UPlayerWidget* PlayerWidget;
+
 	void ONFire(const FInputActionValue& value);
 	void ONTurn(const FInputActionValue& value);
 
@@ -85,7 +91,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* NI_Fire;
 
-	bool bshield = true;
+	bool bshield = true; // ½¯µå
+	bool bGunbullet = true; // ÃÑ¾Ë½î¸é ´Þµµ·Ï
 
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* FX_FireHit;
@@ -93,12 +100,7 @@ public:
 	// ÅºÃ¢
 	UPROPERTY()
 	int32 bulletFactory = 0;
-
-	UPROPERTY(EditAnywhere, Category = "Widget")
-	TSubclassOf<UUserWidget> TPlayerWidget;
-
-	UPROPERTY()
-	class UPlayerWidget* PlayerWidget;
+	
 
 protected:
 	virtual void BeginPlay() override;
@@ -143,4 +145,7 @@ protected:
 	UPROPERTY()
 	class ABulletActor* bullet;
 
+private:
+	// À§Á¬ÀÌ ÇÃ·¹ÀÌ¾î¸¦ ¹Ù¶óº¸°Ô 
+	//FRotator BillboardWidgetComponent(class AActor* camActor);
 };

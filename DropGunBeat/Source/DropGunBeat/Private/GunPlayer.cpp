@@ -20,6 +20,8 @@
 #include "PlayerWidget.h"
 #include "musicGameModeBase.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/GameModeBase.h>
+#include <../../../../../../../Source/Runtime/UMG/Public/Components/WidgetComponent.h>
+#include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h>
 
 
 AGunPlayer::AGunPlayer()
@@ -77,9 +79,12 @@ AGunPlayer::AGunPlayer()
 	RightHitComp = CreateDefaultSubobject<USphereComponent>(TEXT("RightHitComp"));
 	RightHitComp->SetupAttachment(MeshRight);
 
-
 	//MeshLeft->SetGenerateOverlapEvents(true); // 콜리전으로 변경해야함
 	MeshRight->SetGenerateOverlapEvents(true);
+
+	PlayerGunWidgetComp = CreateDefaultSubobject <UWidgetComponent>(TEXT("Player Gun Component"));
+	PlayerGunWidgetComp->SetupAttachment(MeshRight);
+
 }
 
 
@@ -111,18 +116,11 @@ void AGunPlayer::BeginPlay()
 	MeshRight->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap); // 콜리전으로 변경해야함
 	//MeshLeft->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap);
 
-	//// 위젯
-	//if (TPlayerWidget)
-	//{
-	//	PlayerWidget = Cast<UPlayerWidget>(CreateWidget(GetWorld(), TPlayerWidget));
-	//	if (PlayerWidget)
-	//	{
-	//		// 함수화 해주는 것이 좋아보이지만 기능 구현만을 위해 풀어 썼다.
-	//		PlayerWidget->SetCurrentBullet()->SetText(FText::FromString(PlayerWidget->CurrentBullet));
-	//		PlayerWidget->AddToViewport();
-	//	}
-	//}
+	PlayerWidget = Cast<UPlayerWidget>(PlayerGunWidgetComp->GetWidget());
+
 }
+
+
 
 
 void AGunPlayer::Tick(float DeltaTime)
@@ -157,6 +155,9 @@ void AGunPlayer::Tick(float DeltaTime)
 		shieldrecovery();
 	}
 
+	// 항상 위젯이 날 바라보도록
+	//PlayerGunWidgetComp->SetWorldRotation(BillboardWidgetComponent(this));
+
 }
 
 
@@ -179,34 +180,48 @@ void AGunPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 // 총알 발사 인풋
 void AGunPlayer::ONFire(const FInputActionValue& value)
 {
-	AGameModeBase* gm = GetWorld()->GetAuthGameMode();
-	AmusicGameModeBase* myGM = Cast<AmusicGameModeBase>(gm);
-
-	if (myGM != nullptr)
-	{ 
-		myGM->remainBullet(-1);
-		
-
-	}
-
+	
+	
 	if (bulletFactory > 0)
 	{ 
+		if (PlayerWidget != nullptr)
+		{
+			PlayerWidget->remainBullet(-1);
+			//UE_LOG(LogTemp, Warning, TEXT("remain-1"));
+		}
 		if (NI_Fire != nullptr)
 		{
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NI_Fire, MeshRight->GetComponentLocation(),MeshRight->GetComponentRotation()); //무기에붙여야함
 		}
 
-		UE_LOG(LogTemp, Warning, TEXT("2222222"));
+		//UE_LOG(LogTemp, Warning, TEXT("2222222"));
 		bool isPressed = value.Get<bool>();   // .이 캐스트의 의미 , 개발자가 어떻게 만들지 예측할 수 없어서 이런식으로 작성
 		if (isPressed)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("1111111"));
+			//UE_LOG(LogTemp, Warning, TEXT("1111111"));
 			//마우스 커서 입력값 확인
 			FVector WorldPosition, WorldDirection;
 			APlayerController* MyController = Cast<APlayerController>(GetController());
 			MyController->DeprojectMousePositionToWorld(WorldPosition, WorldDirection);
-
 			FHitResult hitInfo;   // 마우스가 히트되었을때
+			
+			/*bool SphereTraceSingleForObjects
+			(
+				UObject * WorldContextObject,
+				const FVector Start, // 시작지점
+				const FVector End, // 끝지점
+				float Radius, // 거리?
+				const TArray < TEnumAsByte < EObjectTypeQuery > > &ObjectTypes,
+				bool bTraceComplex,
+				const TArray < AActor* > &ActorsToIgnore, // 이그노어처리할액터
+				EDrawDebugTrace::Type DrawDebugType,
+				FHitResult & OutHit, // 시작지점, 끝지점?
+				bool bIgnoreSelf, // 자기자신 이그노어처리?
+				FLinearColor TraceColor, // 색깔
+				FLinearColor TraceHitColor, // 맞은색깔
+				float DrawTime // 몇초동안그릴지
+			);*/
+
 
 			if (GetWorld()->LineTraceSingleByChannel(hitInfo, WorldPosition, WorldPosition + WorldDirection * 10000, ECC_Visibility))
 			{
@@ -273,6 +288,20 @@ void AGunPlayer::shieldrecovery()
 
 	
 }
+
+//FRotator AGunPlayer::BillboardWidgetComponent(AActor* camActor)
+//{
+//		if (VRCamera != nullptr)
+//		{
+//			FVector lookDir = (VRCamera->GetComponentLocation() - PlayerGunWidgetComp->GetComponentLocation()).GetSafeNormal();
+//			FRotator lookRot = UKismetMathLibrary::MakeRotFromX(lookDir);
+//			return lookRot;
+//		}
+//		else
+//		{
+//			return FRotator::ZeroRotator;
+//		}
+//}
 
 
 

@@ -6,13 +6,23 @@
 #include "GunPlayer.h"
 
 
-void UPlayerWidget::SetCurrentBullet()
+void UPlayerWidget::NativeConstruct()
 {
-	if (CurrentBullet)
-	{
-		
+	Super::NativeConstruct();
 
-
-	}
-
+	CurrentBullet->SetText(FText::FromString("15"));
 }
+
+void UPlayerWidget::remainBullet(int32 bulletCount)
+{
+	// 현재 점수에서 bulletCount만큼을 빼기
+	bullet += bulletCount;
+
+	FString bulletString = FString::Printf(TEXT(" % d"), bullet);
+	FText bulletText = FText::FromString(bulletString);
+	//UE_LOG(LogTemp, Warning, TEXT("remain"));
+	CurrentBullet->SetText(bulletText);
+}
+
+
+

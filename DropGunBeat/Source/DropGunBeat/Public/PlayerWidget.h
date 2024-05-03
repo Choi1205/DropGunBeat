@@ -15,14 +15,19 @@ class DROPGUNBEAT_API UPlayerWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void SetCurrentBullet();
 
 	UPROPERTY(EditAnywhere ,Category = "MySettings", meta = (BindWidget))
 	class UTextBlock* CurrentBullet;
 	
+	UPROPERTY()
 	class AGunPlayer* player;
+	
+	void NativeConstruct(); // 비긴플레이
 
+	void remainBullet(int32 bulletCount);
 
+private:
+	int32 bullet = 15;
 
 
 };
