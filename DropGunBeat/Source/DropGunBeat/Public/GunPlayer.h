@@ -94,11 +94,11 @@ public:
 	UPROPERTY()
 	int32 bulletFactory = 0;
 
-	/*UPROPERTY(EditAnywhere, Category = "Widget")
+	UPROPERTY(EditAnywhere, Category = "Widget")
 	TSubclassOf<UUserWidget> TPlayerWidget;
 
 	UPROPERTY()
-	class UPlayerWidget* PlayerWidget;*/
+	class UPlayerWidget* PlayerWidget;
 
 protected:
 	virtual void BeginPlay() override;
