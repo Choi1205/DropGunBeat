@@ -18,6 +18,8 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/BoxComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/SphereComponent.h>
 #include "PlayerWidget.h"
+#include "musicGameModeBase.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/GameModeBase.h>
 
 
 AGunPlayer::AGunPlayer()
@@ -177,6 +179,16 @@ void AGunPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 // ÃÑ¾Ë ¹ß»ç ÀÎÇ²
 void AGunPlayer::ONFire(const FInputActionValue& value)
 {
+	AGameModeBase* gm = GetWorld()->GetAuthGameMode();
+	AmusicGameModeBase* myGM = Cast<AmusicGameModeBase>(gm);
+
+	if (myGM != nullptr)
+	{ 
+		myGM->remainBullet(-1);
+		
+
+	}
+
 	if (bulletFactory > 0)
 	{ 
 		if (NI_Fire != nullptr)

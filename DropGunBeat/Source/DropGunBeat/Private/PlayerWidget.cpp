@@ -10,7 +10,9 @@ void UPlayerWidget::SetCurrentBullet()
 {
 	if (CurrentBullet)
 	{
-		CurrentBullet->SetVisibility(ESlateVisibility::Visible);
+		
+
+
 	}
 
 }

@@ -15,13 +15,13 @@ class DROPGUNBEAT_API UPlayerWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	
 	void SetCurrentBullet();
 
-	UPROPERTY(EditAnywhere ,meta = ( BindWidget ))
+	UPROPERTY(EditAnywhere ,Category = "MySettings", meta = (BindWidget))
 	class UTextBlock* CurrentBullet;
 	
 	class AGunPlayer* player;
+
 
 
 
