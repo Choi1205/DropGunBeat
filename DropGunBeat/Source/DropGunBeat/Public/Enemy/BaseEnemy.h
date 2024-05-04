@@ -117,5 +117,7 @@ public:
 
 	EEnemyState GetEnemyState();
 
+	void SetTargetPlace(FVector value);
+
 	void ABP_Death();
 };

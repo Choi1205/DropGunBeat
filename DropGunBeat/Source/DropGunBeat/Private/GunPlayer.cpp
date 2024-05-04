@@ -131,7 +131,7 @@ void AGunPlayer::Tick(float DeltaTime)
 	if (moveTime < endTime)
 	{
 		//UE_LOG(LogTemp,Warning,TEXT("11111"));
-		SetActorLocation(FMath::Lerp(startLoc, targetLoc, (moveTime/endTime)));
+		SetActorLocation(FMath::Lerp(startLoc, targetLoc, (moveTime/endTime)), true);
 	}
 	/*else
 	{

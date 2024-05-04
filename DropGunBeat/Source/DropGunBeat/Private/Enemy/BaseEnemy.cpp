@@ -19,6 +19,8 @@ ABaseEnemy::ABaseEnemy()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	GetCapsuleComponent()->SetCollisionProfileName(FName("Enemy"));
+
 	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -88.0f));
 	GetMesh()->SetRelativeRotation(FRotator(0.0f, 0.0f, -90.0f));
 
@@ -39,6 +41,7 @@ ABaseEnemy::ABaseEnemy()
 	laserPoint->SetupAttachment(firePoint);
 	laserPoint->SetAutoActivate(false);
 
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 // Called when the game starts or when spawned
@@ -136,6 +139,7 @@ void ABaseEnemy::move(float deltaTime)
 	}
 	else {
 		FVector toward = targetPlace - GetActorLocation();
+		UE_LOG(LogTemp, Warning, TEXT("%f, %f, %f"), toward.X, toward.Y, toward.Z);
 		toward.Normalize();
 		AddMovementInput(toward, speed);
 	}
@@ -215,6 +219,11 @@ bool ABaseEnemy::Hit()
 EEnemyState ABaseEnemy::GetEnemyState()
 {
 	return enemyState;
+}
+
+void ABaseEnemy::SetTargetPlace(FVector value)
+{
+	targetPlace = value;
 }
 
 void ABaseEnemy::ABP_Death()

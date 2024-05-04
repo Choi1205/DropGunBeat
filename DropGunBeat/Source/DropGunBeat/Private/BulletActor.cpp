@@ -61,6 +61,7 @@ void ABulletActor::CallHit(class UPrimitiveComponent* OverlappedComp, class AAct
 
 	if (playerREF) {
 		//playerREF->OnDamaged();
+		//이거 켜면 테스트 골치아프니까 나중에 켜자
 	}
 	
 	Destroy();
