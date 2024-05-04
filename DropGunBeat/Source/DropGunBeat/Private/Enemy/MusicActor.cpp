@@ -35,6 +35,11 @@ void AMusicActor::Tick(float DeltaTime)
 
 }
 
+float AMusicActor::GetBeatTime()
+{
+	return beatTime;
+}
+
 float AMusicActor::BeatAccuracy()
 {
 	float vaule = (currentTime / beatTime) * 100;

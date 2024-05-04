@@ -93,7 +93,19 @@ void AGunPlayer::BeginPlay()
 	Super::BeginPlay();
 	
 	startLoc = GetActorLocation();
-	targetLoc = GetActorLocation() + FVector(1000,0,0);
+
+	if (GetWorld()->GetMapName().Contains(FString("BBKKBKK"))) {
+		targetLoc = GetActorLocation() + FVector(31400.0f, 0.0f, 0.0f);
+		endTime = 136.0f;
+	}
+	else if (GetWorld()->GetMapName().Contains(FString("NightTheater"))) {
+		targetLoc = GetActorLocation() + FVector(31400.0f, 0.0f, 0.0f);
+		endTime = 130.0f;
+	}
+	else {
+		targetLoc = GetActorLocation() + FVector(1000, 0, 0);
+		endTime = 3.0f;
+	}
 
 	bulletFactory = 15;
 

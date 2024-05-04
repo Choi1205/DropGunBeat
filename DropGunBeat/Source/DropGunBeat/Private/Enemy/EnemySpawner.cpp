@@ -43,7 +43,7 @@ void AEnemySpawner::SpawnEnemy(UPrimitiveComponent* OverlappedComponent, AActor*
 			FActorSpawnParameters params;
 			params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 			for (int32 i = 0; i < spawnPoint.Num(); i++) {
-				ABaseEnemy* enemy = GetWorld()->SpawnActor<ABaseEnemy>(enemy_BP, spawnPoint[i], FRotator::ZeroRotator, params);
+				ABaseEnemy* enemy = GetWorld()->SpawnActor<ABaseEnemy>(enemy_BP, spawnPoint[i], FRotator(0.0f, 180.0f, 0.0f), params);
 				enemy->SetTargetPlace(movePoint[i]);
 			}
 			bIsSpawned = true;

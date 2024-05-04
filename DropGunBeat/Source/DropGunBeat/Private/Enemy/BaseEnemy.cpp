@@ -5,13 +5,15 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/LineBatchComponent.h"
+#include "Components/WidgetComponent.h"
+#include "Camera/CameraComponent.h"
+#include "NiagaraComponent.h"
 #include "EngineUtils.h"
 #include "GunPlayer.h"
-#include <../../../../../../../Source/Runtime/Engine/Classes/Camera/CameraComponent.h>
-#include <../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
 #include "BulletActor.h"
 #include "Enemy/MusicActor.h"
+#include "Enemy/EnemyScoreWidget.h"
+#include "musicGameInstance.h"
 
 // Sets default values
 ABaseEnemy::ABaseEnemy()
@@ -22,24 +24,34 @@ ABaseEnemy::ABaseEnemy()
 	GetCapsuleComponent()->SetCollisionProfileName(FName("Enemy"));
 
 	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -88.0f));
-	GetMesh()->SetRelativeRotation(FRotator(0.0f, 0.0f, -90.0f));
+	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+	GetMesh()->SetCollisionProfileName(FName("NoCollision"));
 
 	vestMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Vest"));
 	vestMeshComp->SetupAttachment(GetMesh(), FName("VestSocket"));
+	vestMeshComp->SetCollisionProfileName(FName("NoCollision"));
 
 	helmetMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Helmet"));
 	helmetMeshComp->SetupAttachment(GetMesh(), FName("HelmetSocket"));
+	helmetMeshComp->SetCollisionProfileName(FName("NoCollision"));
 
 	gunMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Gun"));
 	gunMeshComp->SetupAttachment(GetMesh(), FName("RightHandSocket"));
+	gunMeshComp->SetCollisionProfileName(FName("NoCollision"));
 
-	firePoint = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FirePoint"));
+	firePoint = CreateDefaultSubobject<USceneComponent>(TEXT("FirePoint"));
 	firePoint->SetupAttachment(gunMeshComp);
 	firePoint->SetRelativeLocationAndRotation(FVector(10.0f, 0.0f, 30.0f), FRotator(90.0f, 0.0f, 180.0f));
 
 	laserPoint = CreateDefaultSubobject<UNiagaraComponent>(TEXT("LaserPointer"));
 	laserPoint->SetupAttachment(firePoint);
 	laserPoint->SetAutoActivate(false);
+
+	scoreWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("ScoreWidget"));
+	scoreWidgetComp->SetupAttachment(RootComponent);
+	scoreWidgetComp->SetRelativeLocation(FVector(0.0f, 0.0f, 110.0f));
+	scoreWidgetComp->SetWidgetSpace(EWidgetSpace::World);
+	scoreWidgetComp->SetCollisionProfileName(FName("NoCollision"));
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
@@ -53,6 +65,12 @@ void ABaseEnemy::BeginPlay()
 
 	FindPlayer();
 	FindMusic();
+
+	idleCooldown *= beatTime;
+	fireCooldown *= beatTime;
+
+	gi = Cast<UmusicGameInstance>(GetGameInstance());
+	scoreWidget = Cast<UEnemyScoreWidget>(scoreWidgetComp->GetWidget());
 }
 
 // Called every frame
@@ -73,9 +91,6 @@ void ABaseEnemy::Tick(float DeltaTime)
 		break;
 	case EEnemyState::SHOOT:
 		Shoot();
-		break;
-	case EEnemyState::DIE:
-		Die();
 		break;
 	default:
 		break;
@@ -120,6 +135,7 @@ void ABaseEnemy::FindMusic()
 	else {
 		musicREF = nullptr;
 	}
+	beatTime = musicREF->GetBeatTime();
 }
 
 void ABaseEnemy::Idle(float deltaTime)
@@ -139,7 +155,6 @@ void ABaseEnemy::move(float deltaTime)
 	}
 	else {
 		FVector toward = targetPlace - GetActorLocation();
-		UE_LOG(LogTemp, Warning, TEXT("%f, %f, %f"), toward.X, toward.Y, toward.Z);
 		toward.Normalize();
 		AddMovementInput(toward, speed);
 	}
@@ -185,34 +200,40 @@ void ABaseEnemy::Shoot()
 	}
 }
 
-void ABaseEnemy::Die()
-{
-	if (!bIsDead) {
-		bIsDead = true;
-		//타이머로 죽는 애니메이션 처리
-	}
-}
-
 bool ABaseEnemy::Hit()
 {
 	UE_LOG(LogTemp, Warning, TEXT("%f"), musicREF->BeatAccuracy());
 	//-0.5 의 절대값으로 들어오므로, 0.5가 가장 정확, 0에 가까울수록 부정확.
+	float accuracy = musicREF->BeatAccuracy();
 	if(enemyState != EEnemyState::DIE) {
 		currentHP--;
-		if(currentHP > 0){
-			//맞는 이펙트 재생
 
+		if (gi != nullptr && scoreWidget != nullptr) {
+			if (accuracy > 0.3) {
+				gi->currentScore += 400;
+				scoreWidget->ShowScore(400);
+			}
+			else if (accuracy > 0.1) {
+				gi->currentScore += 300;
+				scoreWidget->ShowScore(300);
+			}
+			else {
+				gi->currentScore += 200;
+				scoreWidget->ShowScore(200);
+			}
+		}
+
+		if(currentHP > 0){
 			return false;
 		}
 		else {
 			enemyState = EEnemyState::DIE;
-			//죽는 이펙트 재생
-
+			GetCapsuleComponent()->SetCollisionProfileName(FName("NoCollision"));
 			return true;
 		}
 	}
 	else{
-		return true;
+		return false;
 	}
 }
 

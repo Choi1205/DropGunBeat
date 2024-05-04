@@ -37,5 +37,8 @@ public:
 	bool beat;
 
 	UFUNCTION(BlueprintCallable)
+	float GetBeatTime();
+
+	UFUNCTION(BlueprintCallable)
 	float BeatAccuracy();
 };

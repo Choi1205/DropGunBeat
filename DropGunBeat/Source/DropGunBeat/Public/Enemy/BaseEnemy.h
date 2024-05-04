@@ -50,6 +50,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UNiagaraComponent* laserPoint;
 
+	UPROPERTY(EditDefaultsOnly)
+	class UWidgetComponent* scoreWidgetComp;
+
 private:
 
 	//////////
@@ -86,11 +89,16 @@ private:
 	UPROPERTY(EditAnywhere, Category = "EnemyStat|Move")
 	float speed = 1.0f;
 	UPROPERTY(VisibleAnywhere, Category = "EnemyStat")
-	bool bIsDead = false;
+	class UEnemyScoreWidget* scoreWidget;
 
 	class AGunPlayer* playerREF;
 
 	class AMusicActor* musicREF;
+
+	class UmusicGameInstance* gi;
+
+	UPROPERTY(VisibleAnywhere)
+	float beatTime;
 
 protected:
 	// Called when the game starts or when spawned
