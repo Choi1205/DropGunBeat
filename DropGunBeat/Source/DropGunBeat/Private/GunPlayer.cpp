@@ -248,7 +248,7 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 				enemy = Cast<ABaseEnemy>(hitInfo.GetActor());
 				if (enemy != nullptr)
 				{
-				enemy->Hit();
+				enemy->Hit(false);
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(3.0f));
 				}
 			}
@@ -269,7 +269,7 @@ void AGunPlayer::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 {
 	if (OtherActor->IsA<ABaseEnemy>())
 	{
-		enemy->Hit();
+		enemy->Hit(true);
 	}
 
 }

@@ -200,40 +200,44 @@ void ABaseEnemy::Shoot()
 	}
 }
 
-bool ABaseEnemy::Hit()
+bool ABaseEnemy::Hit(bool bIsPunch)
 {
 	UE_LOG(LogTemp, Warning, TEXT("%f"), musicREF->BeatAccuracy());
 	//-0.5 의 절대값으로 들어오므로, 0.5가 가장 정확, 0에 가까울수록 부정확.
-	float accuracy = musicREF->BeatAccuracy();
-	if(enemyState != EEnemyState::DIE) {
-		currentHP--;
+	if (bIsPunch) {
+		currentHP = 0;
+		gi->currentScore += 600;
+		scoreWidget->ShowScore(600);
+	}
+	else {
+		float accuracy = musicREF->BeatAccuracy();
+		if (enemyState != EEnemyState::DIE) {
+			currentHP--;
 
-		if (gi != nullptr && scoreWidget != nullptr) {
-			if (accuracy > 0.3) {
-				gi->currentScore += 400;
-				scoreWidget->ShowScore(400);
+			if (gi != nullptr && scoreWidget != nullptr) {
+				if (accuracy > 0.3) {
+					gi->currentScore += 400;
+					scoreWidget->ShowScore(400);
+				}
+				else if (accuracy > 0.1) {
+					gi->currentScore += 300;
+					scoreWidget->ShowScore(300);
+				}
+				else {
+					gi->currentScore += 200;
+					scoreWidget->ShowScore(200);
+				}
 			}
-			else if (accuracy > 0.1) {
-				gi->currentScore += 300;
-				scoreWidget->ShowScore(300);
-			}
-			else {
-				gi->currentScore += 200;
-				scoreWidget->ShowScore(200);
-			}
-		}
-
-		if(currentHP > 0){
-			return false;
-		}
-		else {
-			enemyState = EEnemyState::DIE;
-			GetCapsuleComponent()->SetCollisionProfileName(FName("NoCollision"));
-			return true;
 		}
 	}
-	else{
+
+	if (currentHP > 0) {
 		return false;
+	}
+	else {
+		enemyState = EEnemyState::DIE;
+		GetCapsuleComponent()->SetCollisionProfileName(FName("NoCollision"));
+		return true;
 	}
 }
 

@@ -8,13 +8,13 @@ void UEnemyScoreWidget::ShowScore(int32 score)
 {
 	scoreBlock->SetText(FText::FromString(FString::FromInt(score)));
 
-	if (score == 400) {
+	if (score >= 400) {
 		scoreBlock->SetColorAndOpacity(FColor::Red);
 	}
 	else if (score == 300) {
 		scoreBlock->SetColorAndOpacity(FColor::Yellow);
 	}
-	else {
+	else{
 		scoreBlock->SetColorAndOpacity(FColor::White);
 	}
 

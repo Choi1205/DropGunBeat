@@ -3,6 +3,9 @@
 
 #include "Enemy/MusicActor.h"
 #include "Components/AudioComponent.h"
+#include <../../../../../../../Source/Runtime/Engine/Public/AudioThread.h>
+#include <../../../../../../../Source/Runtime/Engine/Public/AudioDevice.h>
+#include <../../../../../../../Source/Runtime/Engine/Public/ActiveSound.h>
 
 // Sets default values
 AMusicActor::AMusicActor()
@@ -32,7 +35,6 @@ void AMusicActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	currentTime += DeltaTime;
-
 }
 
 float AMusicActor::GetBeatTime()

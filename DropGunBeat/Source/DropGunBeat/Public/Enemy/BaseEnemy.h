@@ -119,9 +119,9 @@ public:
 	void move(float deltaTime);
 	void Aim(float deltaTime);
 	void Shoot();
-	void Die();
+	//void Die();
 
-	bool Hit();
+	bool Hit(bool bIsPunch);
 
 	EEnemyState GetEnemyState();
 
