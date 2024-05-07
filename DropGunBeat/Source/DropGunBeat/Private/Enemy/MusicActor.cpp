@@ -25,8 +25,9 @@ AMusicActor::AMusicActor()
 void AMusicActor::BeginPlay()
 {
 	Super::BeginPlay();
+
 	beatTime = 60.0f / BPM;
-	currentTime = currentTime + (beatTime/4);
+	//currentTime = currentTime + (beatTime/4);
 }
 
 // Called every frame

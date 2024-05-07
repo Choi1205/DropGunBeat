@@ -21,6 +21,8 @@ ABaseEnemy::ABaseEnemy()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	GetRootComponent()->SetWorldScale3D(FVector(1.5f));
+
 	GetCapsuleComponent()->SetCollisionProfileName(FName("Enemy"));
 
 	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -88.0f));
@@ -215,11 +217,11 @@ bool ABaseEnemy::Hit(bool bIsPunch)
 			currentHP--;
 
 			if (gi != nullptr && scoreWidget != nullptr) {
-				if (accuracy > 0.3) {
+				if (accuracy < 0.2) {
 					gi->currentScore += 400;
 					scoreWidget->ShowScore(400);
 				}
-				else if (accuracy > 0.1) {
+				else if (accuracy < 0.4) {
 					gi->currentScore += 300;
 					scoreWidget->ShowScore(300);
 				}
