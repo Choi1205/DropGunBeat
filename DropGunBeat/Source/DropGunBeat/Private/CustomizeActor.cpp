@@ -2,6 +2,8 @@
 
 
 #include "CustomizeActor.h"
+#include "CustomizeWidget.h"
+#include <../../../../../../../Source/Runtime/UMG/Public/Components/WidgetComponent.h>
 
 
 ACustomizeActor::ACustomizeActor()
@@ -11,6 +13,8 @@ ACustomizeActor::ACustomizeActor()
 	sceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	sceneComp->SetupAttachment(RootComponent);
 
+	RobeCustomComponent = CreateDefaultSubobject <UWidgetComponent>(TEXT("Player Gun Component"));
+	RobeCustomComponent->SetupAttachment(sceneComp);
 }
 
 
@@ -18,6 +22,8 @@ void ACustomizeActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	CustomWidget = Cast<UCustomizeWidget>(RobeCustomComponent->GetWidget());
+
 }
 
 

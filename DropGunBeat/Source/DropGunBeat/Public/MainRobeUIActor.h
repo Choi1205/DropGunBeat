@@ -22,6 +22,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Widget")
 	class UMainRobeUserWidget* MainRobeWidget;
 
+	UPROPERTY(VisibleAnywhere, Category="Widget")
+	class UWidgetComponent* MainUIComponent;
+
 protected:
 	virtual void BeginPlay() override;
 

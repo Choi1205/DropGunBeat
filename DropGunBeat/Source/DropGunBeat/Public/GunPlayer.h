@@ -37,6 +37,9 @@ public:
 	  UPROPERTY(EditDefaultsOnly)
 	 class UMotionControllerComponent* MotionRight;
 
+	 UPROPERTY(EditDefaultsOnly)
+	class UMotionControllerComponent* RightAim; 
+
 	// 왼손, 오른손 스켈레탈 메시를 만들고 모션컨트롤러에 붙이고싶다.
 	UPROPERTY(EditDefaultsOnly)
 	class USkeletalMeshComponent* MeshLeft;

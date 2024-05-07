@@ -22,6 +22,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/GameModeBase.h>
 #include <../../../../../../../Source/Runtime/UMG/Public/Components/WidgetComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h>
+#include <../../../../../../../Source/Runtime/Engine/Public/KismetTraceUtils.h>
 
 
 AGunPlayer::AGunPlayer()
@@ -85,6 +86,9 @@ AGunPlayer::AGunPlayer()
 	PlayerGunWidgetComp = CreateDefaultSubobject <UWidgetComponent>(TEXT("Player Gun Component"));
 	PlayerGunWidgetComp->SetupAttachment(MeshRight);
 
+	RightAim = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("RightAim"));
+	RightAim->SetupAttachment(RootComponent);
+	RightAim->SetTrackingMotionSource(TEXT("RightAim")); // 여기를 기준으로 좌표계를 사용함.
 }
 
 
@@ -193,7 +197,7 @@ void AGunPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 // 총알 발사 인풋
 void AGunPlayer::ONFire(const FInputActionValue& value)
 {
-	
+	FVector StartFire = MeshRight->GetComponentLocation();
 	
 	if (bulletFactory > 0)
 	{ 
@@ -211,48 +215,81 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 		bool isPressed = value.Get<bool>();   // .이 캐스트의 의미 , 개발자가 어떻게 만들지 예측할 수 없어서 이런식으로 작성
 		if (isPressed)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("1111111"));
-			//마우스 커서 입력값 확인
-			FVector WorldPosition, WorldDirection;
-			APlayerController* MyController = Cast<APlayerController>(GetController());
-			MyController->DeprojectMousePositionToWorld(WorldPosition, WorldDirection);
-			FHitResult hitInfo;   // 마우스가 히트되었을때
-			
-			/*bool SphereTraceSingleForObjects
-			(
-				UObject * WorldContextObject,
-				const FVector Start, // 시작지점
-				const FVector End, // 끝지점
-				float Radius, // 거리?
-				const TArray < TEnumAsByte < EObjectTypeQuery > > &ObjectTypes,
-				bool bTraceComplex,
-				const TArray < AActor* > &ActorsToIgnore, // 이그노어처리할액터
-				EDrawDebugTrace::Type DrawDebugType,
-				FHitResult & OutHit, // 시작지점, 끝지점?
-				bool bIgnoreSelf, // 자기자신 이그노어처리?
-				FLinearColor TraceColor, // 색깔
-				FLinearColor TraceHitColor, // 맞은색깔
-				float DrawTime // 몇초동안그릴지
-			);*/
+			FHitResult hitInfo;
+			FVector start = MeshRight->GetComponentLocation();//RightAim->GetComponentLocation();
+			FVector end = start + RightAim->GetForwardVector() * 100000;
+			FCollisionQueryParams params;
+			params.AddIgnoredActor(this);  // 액터는 나 자신,
+			params.AddIgnoredComponent(MeshRight); // 혹시 내 매쉬에 닿을 수 있으므로
 
+			FQuat startRot = FRotator(0, 0, 0).Quaternion();
 
-			if (GetWorld()->LineTraceSingleByChannel(hitInfo, WorldPosition, WorldPosition + WorldDirection * 10000, ECC_Visibility))
+			//bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, start, end, ECC_Visibility, params);
+			bool bResult = GetWorld()->SweepSingleByChannel(hitInfo, start, end, startRot, ECC_Visibility, FCollisionShape::MakeSphere(10), params);
+			DrawDebugBoxTraceSingle(GetWorld(), start, end, FVector(10), FRotator(0, 0, 0), EDrawDebugTrace::ForDuration, true, hitInfo, FLinearColor::Green, FLinearColor::Red, 2.0f);
+			// 만약 부딪힌것이 있다면
+			if (bResult)
 			{
-				targetPos = hitInfo.ImpactPoint;    //히트된 좌표
-
-				//targetPos.Z = GetActorLocation().Z;   //z 좌표를 플레이어의 좌표로 설정
+				enemy = Cast<ABaseEnemy>(hitInfo.GetActor());
+					if (enemy != nullptr)
+					{
+						enemy->Hit(false);
+						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(3.0f));
+					}
+				
+			}
 			
 
-				// 좌표 설정 확인
-				DrawDebugSphere(GetWorld(), hitInfo.ImpactPoint, 10.0f, 15, FColor::Red, false, 3, 1, 1);
-				UE_LOG(LogTemp, Warning, TEXT("%.1f, %.1f, %.1f"), hitInfo.ImpactPoint.X, hitInfo.ImpactPoint.Y, hitInfo.ImpactPoint.Z);
-				enemy = Cast<ABaseEnemy>(hitInfo.GetActor());
-				if (enemy != nullptr)
-				{
-				enemy->Hit(false);
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(3.0f));
-				}
-			}
+
+			////UE_LOG(LogTemp, Warning, TEXT("1111111"));
+			////마우스 커서 입력값 확인
+			//FVector WorldPosition, WorldDirection;
+			//APlayerController* MyController = Cast<APlayerController>(GetController());
+			//MyController->DeprojectMousePositionToWorld(WorldPosition, WorldDirection);
+			//FHitResult hitInfo;   // 마우스가 히트되었을때
+			//
+			//FCollisionQueryParams queryParams;
+			//queryParams.AddIgnoredActor(player);
+
+			//FVector endLoc = WorldPosition + WorldDirection * 10000;
+
+			//// 정육면체를 45도 회전시킨 상태로 발사한다.
+			//FQuat startRot = FRotator(0, 0, 45).Quaternion();
+
+			//bool bResult = GetWorld()->SweepSingleByChannel(hitInfo, StartFire, endLoc, startRot, ECC_Visibility, FCollisionShape::MakeSphere(10), queryParams);
+
+			//if (bResult)
+			//{
+			//	UE_LOG(LogTemp, Warning, TEXT("Hit Actor name: %s"), *hitInfo.GetActor()->GetActorNameOrLabel());
+			//	FVector centerPos = (StartFire + endLoc) * 0.5f;
+			//	enemy = Cast<ABaseEnemy>(hitInfo.GetActor());
+			//	if (enemy != nullptr)
+			//	{
+			//		enemy->Hit(false);
+			//		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(3.0f));
+			//	}
+			//}
+
+			//DrawDebugBoxTraceSingle(GetWorld(), StartFire, endLoc, FVector(10), FRotator(0, 0, 45), EDrawDebugTrace::ForDuration, true, hitInfo, FLinearColor::Green, FLinearColor::Red, 2.0f);
+
+
+			//if (GetWorld()->LineTraceSingleByChannel(hitInfo, WorldPosition, WorldPosition + WorldDirection * 10000, ECC_Visibility))
+			//{
+			//	targetPos = hitInfo.ImpactPoint;    //히트된 좌표
+
+			//	//targetPos.Z = GetActorLocation().Z;   //z 좌표를 플레이어의 좌표로 설정
+			//
+
+			//	// 좌표 설정 확인
+			//	DrawDebugSphere(GetWorld(), hitInfo.ImpactPoint, 10.0f, 15, FColor::Red, false, 3, 1, 1);
+			//	UE_LOG(LogTemp, Warning, TEXT("%.1f, %.1f, %.1f"), hitInfo.ImpactPoint.X, hitInfo.ImpactPoint.Y, hitInfo.ImpactPoint.Z);
+			//	enemy = Cast<ABaseEnemy>(hitInfo.GetActor());
+			//	if (enemy != nullptr)
+			//	{
+			//	enemy->Hit(false);
+			//	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(3.0f));
+			//	}
+			//}
 		}
 	}
 	bulletFactory += -1;

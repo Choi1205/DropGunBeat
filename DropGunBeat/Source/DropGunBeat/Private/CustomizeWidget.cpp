@@ -3,3 +3,8 @@
 
 #include "CustomizeWidget.h"
 
+void UCustomizeWidget::NativeConstruct()
+{
+	
+
+}

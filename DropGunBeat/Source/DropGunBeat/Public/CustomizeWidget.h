@@ -13,5 +13,7 @@ UCLASS()
 class DROPGUNBEAT_API UCustomizeWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
+	void NativeConstruct(); // 비긴플레이
 	
 };

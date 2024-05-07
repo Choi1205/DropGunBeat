@@ -2,6 +2,7 @@
 
 
 #include "MainRobeUIActor.h"
+#include <../../../../../../../Source/Runtime/UMG/Public/Components/WidgetComponent.h>
 
 // Sets default values
 AMainRobeUIActor::AMainRobeUIActor()
@@ -10,6 +11,10 @@ AMainRobeUIActor::AMainRobeUIActor()
 
 	sceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	sceneComp->SetupAttachment(RootComponent);
+
+	
+	MainUIComponent = CreateDefaultSubobject <UWidgetComponent>(TEXT("Player Gun Component"));
+	MainUIComponent->SetupAttachment(sceneComp);
 }
 
 
@@ -17,6 +22,8 @@ void AMainRobeUIActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	MainRobeWidget = Cast<UMainRobeUserWidget>(MainUIComponent->GetWidget());
+
 }
 
 

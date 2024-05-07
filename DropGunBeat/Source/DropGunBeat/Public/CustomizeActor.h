@@ -21,6 +21,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Widget")
 	class UCustomizeWidget* CustomWidget;
 
+	UPROPERTY(VisibleAnywhere, Category="MySettings|Components")
+	class UWidgetComponent* RobeCustomComponent;
+
 protected:
 	virtual void BeginPlay() override;
 
