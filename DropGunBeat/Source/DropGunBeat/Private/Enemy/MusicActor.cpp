@@ -18,7 +18,7 @@ AMusicActor::AMusicActor()
 
 	audioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComp"));
 	audioComp->SetupAttachment(rootComp);
-
+	audioComp->SetAutoActivate(false);
 }
 
 // Called when the game starts or when spawned
@@ -34,7 +34,9 @@ void AMusicActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	currentTime += DeltaTime;
+	if(bIsMusicStart) {
+		currentTime += DeltaTime;
+	}
 }
 
 float AMusicActor::GetBeatTime()
@@ -49,5 +51,11 @@ float AMusicActor::BeatAccuracy()
 	float fv = (float)v / 100.0f;
 	UE_LOG(LogTemp, Warning, TEXT("fv : %f"), fv);
 	return FMath::Abs(fv - 0.5f);
+}
+
+void AMusicActor::MusicStart()
+{
+	audioComp->Activate(true);
+	bIsMusicStart = true;
 }
 

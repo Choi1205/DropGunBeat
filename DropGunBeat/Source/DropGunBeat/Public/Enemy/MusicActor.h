@@ -36,9 +36,14 @@ public:
 
 	bool beat;
 
+	bool bIsMusicStart = false;
+
 	UFUNCTION(BlueprintCallable)
 	float GetBeatTime();
 
 	UFUNCTION(BlueprintCallable)
 	float BeatAccuracy();
+
+	UFUNCTION(BlueprintCallable)
+	void MusicStart();
 };

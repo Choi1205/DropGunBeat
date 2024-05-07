@@ -98,6 +98,9 @@ public:
 	bool bshield = true; // ½¯µå
 	bool bGunbullet = true; // ÃÑ¾Ë½î¸é ´Þµµ·Ï
 
+	UPROPERTY(BlueprintReadWrite)
+	bool bStart = false;
+
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* FX_FireHit;
 	

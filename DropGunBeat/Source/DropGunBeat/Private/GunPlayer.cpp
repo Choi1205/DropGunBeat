@@ -138,10 +138,10 @@ void AGunPlayer::BeginPlay()
 void AGunPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	moveTime += DeltaTime;
 
-	if (moveTime < endTime)
+	if (bStart && moveTime < endTime)
 	{
+		moveTime += DeltaTime;
 		//UE_LOG(LogTemp,Warning,TEXT("11111"));
 		SetActorLocation(FMath::Lerp(startLoc, targetLoc, (moveTime/endTime)), true);
 	}
@@ -249,7 +249,7 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 				enemy = Cast<ABaseEnemy>(hitInfo.GetActor());
 				if (enemy != nullptr)
 				{
-				enemy->Hit();
+				enemy->Hit(false);
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(3.0f));
 				}
 			}
@@ -276,7 +276,7 @@ void AGunPlayer::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 {
 	if (OtherActor->IsA<ABaseEnemy>())
 	{
-		enemy->Hit();
+		enemy->Hit(true);
 	}
 
 }
