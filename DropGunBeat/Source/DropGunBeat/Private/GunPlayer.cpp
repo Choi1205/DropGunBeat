@@ -184,6 +184,7 @@ void AGunPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		// 함수를 인풋 컴포넌트에 연결한다.
 		enhancedInputComponent->BindAction(IA_Fire, ETriggerEvent::Started, this, &AGunPlayer::ONFire);
 		enhancedInputComponent->BindAction(IA_Turn, ETriggerEvent::Triggered, this, &AGunPlayer::ONTurn);
+		enhancedInputComponent->BindAction(IA_Reroad, ETriggerEvent::Started, this, &AGunPlayer::ONReroad);
 	}
 
 }
@@ -248,7 +249,7 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 				enemy = Cast<ABaseEnemy>(hitInfo.GetActor());
 				if (enemy != nullptr)
 				{
-				enemy->Hit(false);
+				enemy->Hit();
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(3.0f));
 				}
 			}
@@ -265,11 +266,17 @@ void AGunPlayer::ONTurn(const FInputActionValue& value)
 	AddControllerYawInput(v);
 }
 
+void AGunPlayer::ONReroad(const FInputActionValue& value)
+{
+	bulletFactory = 15;
+	PlayerWidget->remainBullet(15);
+}
+
 void AGunPlayer::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor->IsA<ABaseEnemy>())
 	{
-		enemy->Hit(true);
+		enemy->Hit();
 	}
 
 }

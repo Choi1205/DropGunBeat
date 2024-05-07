@@ -64,6 +64,9 @@ public:
 	class UInputAction* IA_Fire;
 
 	UPROPERTY(EditDefaultsOnly, Category = VR)
+	class UInputAction* IA_Reroad;
+
+	UPROPERTY(EditDefaultsOnly, Category = VR)
 	class UInputAction* IA_Turn;
 
 	UPROPERTY(VisibleAnywhere, Category="MySettings|Components")
@@ -74,6 +77,7 @@ public:
 
 	void ONFire(const FInputActionValue& value);
 	void ONTurn(const FInputActionValue& value);
+	void ONReroad(const FInputActionValue& value);
 
 	//void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
