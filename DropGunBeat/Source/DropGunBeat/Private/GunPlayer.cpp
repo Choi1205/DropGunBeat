@@ -129,7 +129,7 @@ void AGunPlayer::BeginPlay()
 	}
 
 	
-	MeshRight->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap); // 콜리전으로 변경해야함
+	RightHitComp->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap); // 콜리전으로 변경해야함
 	//MeshLeft->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap);
 
 	PlayerWidget = Cast<UPlayerWidget>(PlayerGunWidgetComp->GetWidget());
@@ -313,7 +313,11 @@ void AGunPlayer::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 {
 	if (OtherActor->IsA<ABaseEnemy>())
 	{
-		enemy->Hit(true);
+		enemy = Cast<ABaseEnemy>(OtherActor);
+		if (enemy != nullptr)
+		{
+			enemy->Hit(true);
+		}
 	}
 
 }
