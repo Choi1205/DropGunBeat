@@ -25,6 +25,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category="Widget")
 	class UWidgetComponent* MainUIComponent;
 
+	UPROPERTY(EditAnywhere, Category = "Play")
+	bool bLevel = true;
+
 protected:
 	virtual void BeginPlay() override;
 

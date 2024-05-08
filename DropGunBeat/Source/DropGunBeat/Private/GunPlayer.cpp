@@ -23,6 +23,7 @@
 #include <../../../../../../../Source/Runtime/UMG/Public/Components/WidgetComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h>
 #include <../../../../../../../Source/Runtime/Engine/Public/KismetTraceUtils.h>
+#include "MainRobeUIActor.h"
 
 
 AGunPlayer::AGunPlayer()
@@ -36,7 +37,7 @@ AGunPlayer::AGunPlayer()
 
 	// 박스 컴포넌트를 카메라에 붙여서 벽에 닿거나 총알에 맞으면 데미지를 받는다.
 	boxcomp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
-	boxcomp->SetupAttachment(RootComponent);
+	boxcomp->SetupAttachment(VRCamera);
 
 	// 모션컨트롤러 왼손, 오른손 생성하고 루트에 붙이고 싶다.
 	//MotionLeft = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MotionLeft"));
@@ -209,6 +210,7 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 	
 	if (bulletFactory > 0)
 	{ 
+		bulletFactory += -1;
 		if (PlayerWidget != nullptr)
 		{
 			PlayerWidget->remainBullet(-1);
@@ -243,7 +245,31 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 					{
 						enemy->Hit(false);
 						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(1.0f));
+						return;
 					}
+					widgetLevel = Cast<AMainRobeUIActor>(hitInfo.GetActor());
+					if (widgetLevel != nullptr)
+					{
+						if (widgetLevel->bLevel)
+						{
+							UGameplayStatics::OpenLevel(this, "BBKKBKKLevel");
+						}
+						else
+						{
+							UGameplayStatics::OpenLevel(this, "NightTheaterLevel");
+						}
+					}
+					//위젯 = 캐스트<위젯클래스>(히트인포.겟액터)
+					//if(위젯)
+					//{  
+					//	위젯아 불값 내놔!
+					//	if(위젯 불값){
+						//BBKK이동
+					//}
+					// else 나이트 이동
+					//}
+					//위젯이 아니야? 아무것도 안함
+					
 			}
 
 			////UE_LOG(LogTemp, Warning, TEXT("1111111"));
@@ -297,7 +323,7 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 			//}
 		}
 	}
-	bulletFactory += -1;
+	
 	
 }
 

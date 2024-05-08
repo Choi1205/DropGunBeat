@@ -114,6 +114,7 @@ public:
 	UPROPERTY()
 	int32 bulletFactory = 0;
 	
+	
 
 protected:
 	virtual void BeginPlay() override;
@@ -157,6 +158,9 @@ protected:
 
 	UPROPERTY()
 	class ABulletActor* bullet;
+
+	UPROPERTY()
+	class AMainRobeUIActor* widgetLevel;
 
 private:
 	// 위젯이 플레이어를 바라보게 
