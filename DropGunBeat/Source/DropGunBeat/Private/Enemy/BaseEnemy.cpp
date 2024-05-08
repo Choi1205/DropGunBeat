@@ -6,6 +6,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Components/BoxComponent.h"
 #include "Camera/CameraComponent.h"
 #include "NiagaraComponent.h"
 #include "EngineUtils.h"
@@ -175,7 +176,7 @@ void ABaseEnemy::Aim(float deltaTime)
 	else {
 		//플레이어를 조준하는 명령어를 넣기
 		if(playerREF != nullptr) {
-			FVector aimDir = playerREF->VRCamera->GetComponentLocation() - GetActorLocation();
+			aimDir = playerREF->boxcomp->GetComponentLocation() - firePoint->GetComponentLocation() + FVector(32.0f, 0.0f, 0.0f);
 			if (numToFire > fireCounter) {
 				laserPoint->SetWorldRotation(aimDir.Rotation());
 				laserPoint->Activate(true);
@@ -188,16 +189,18 @@ void ABaseEnemy::Aim(float deltaTime)
 
 void ABaseEnemy::Shoot()
 {
-	if (playerREF != nullptr && numToFire > fireCounter) {
+	if (!bIsFired && playerREF != nullptr && numToFire > fireCounter) {
 		laserPoint->Deactivate();
-		FVector aimDir = playerREF->VRCamera->GetComponentLocation() - GetActorLocation();
+		aimDir = playerREF->boxcomp->GetComponentLocation() - firePoint->GetComponentLocation() + FVector(32.0f, 0.0f, 0.0f);
 		FActorSpawnParameters params;
 		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		GetWorld()->SpawnActor<ABulletActor>(bulletFactory, firePoint->GetComponentLocation(), aimDir.Rotation(), params);
 		fireCounter++;
+		bIsFired = true;
 		FTimerHandle aimTimer;
 		GetWorldTimerManager().SetTimer(aimTimer, FTimerDelegate::CreateLambda([&]() {
 			enemyState = EEnemyState::AIM;
+			bIsFired = false;
 			}), 2.0f, false);
 	}
 }

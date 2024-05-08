@@ -80,6 +80,7 @@ private:
 	float fireCooldown = 3.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "EnemyStat|Attack")
 	TSubclassOf<class ABulletActor> bulletFactory;
+	bool bIsFired = false;
 	UPROPERTY(EditAnywhere, Category = "EnemyStat")
 	float idleCooldown = 1.0f;
 	UPROPERTY(VisibleAnywhere, Category = "EnemyStat")
@@ -99,6 +100,8 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	float beatTime;
+
+	FVector aimDir;
 
 protected:
 	// Called when the game starts or when spawned

@@ -46,24 +46,18 @@ void ABulletActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	SetActorLocation(GetActorLocation() + GetActorForwardVector() * speed * DeltaTime, true);
+	SetActorLocation(GetActorLocation() + GetActorForwardVector() * speed * DeltaTime + FVector(2.0f, 0.0f, 0.0f), true);
 
 }
 
 void ABulletActor::CallHit(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	ABaseEnemy* enemy = Cast<ABaseEnemy>(OtherActor);
-	if(enemy == nullptr){
-		return;
-	}
-
 	AGunPlayer* playerREF = Cast<AGunPlayer>(OtherActor);
-
 	if (playerREF) {
 		//playerREF->OnDamaged();
 		//이거 켜면 테스트 골치아프니까 나중에 켜자
+		UE_LOG(LogTemp, Warning, TEXT("HIT!!!"));
+		Destroy();
 	}
-	
-	Destroy();
 }
 
