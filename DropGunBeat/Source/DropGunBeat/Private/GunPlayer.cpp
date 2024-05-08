@@ -68,9 +68,11 @@ AGunPlayer::AGunPlayer()
 	if (TempMeshRight.Succeeded())
 	{
 		MeshRight->SetSkeletalMesh(TempMeshRight.Object);
-		MeshRight->SetWorldLocationAndRotation(FVector((6.68f, 10.7f, 1.97f)), FRotator((75.0f, 0.0f, 180.0f)));
+		MeshRight->SetWorldLocationAndRotation(FVector((13.3f, 10.7f, -25.1f)), FRotator((35.0f, 0.0f, 180.0f)));
 		MeshRight->SetRelativeScale3D(FVector(20.0f));
 	}
+
+	
 
 	// 오른손과 왼손에 컴포넌트 컬리전을 넣어서 근접공격을 만든다
 	//LeftHitComp = CreateDefaultSubobject<USphereComponent>(TEXT("LeftHitComp"));
@@ -86,9 +88,15 @@ AGunPlayer::AGunPlayer()
 	PlayerGunWidgetComp = CreateDefaultSubobject <UWidgetComponent>(TEXT("Player Gun Component"));
 	PlayerGunWidgetComp->SetupAttachment(MeshRight);
 
-	RightAim = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("RightAim"));
-	RightAim->SetupAttachment(RootComponent);
-	RightAim->SetTrackingMotionSource(TEXT("RightAim")); // 여기를 기준으로 좌표계를 사용함.
+	//RightAim = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("RightAim"));
+	//RightAim->SetupAttachment(RootComponent);
+	//RightAim->SetTrackingMotionSource(TEXT("RightAim")); // 여기를 기준으로 좌표계를 사용함.
+
+	rightScene = CreateDefaultSubobject<USceneComponent>(TEXT("player Gun Fire Target"));
+	rightScene->SetupAttachment(MeshRight);
+	rightScene->SetRelativeLocation(FVector(0.25f, 0.0f, 0.58f));
+	rightScene->SetRelativeRotation(MeshRight->GetComponentRotation());
+
 }
 
 
@@ -216,8 +224,8 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 		if (isPressed)
 		{
 			FHitResult hitInfo;
-			FVector start = MeshRight->GetComponentLocation();//RightAim->GetComponentLocation();
-			FVector end = start + RightAim->GetForwardVector() * 100000;
+			FVector start = rightScene->GetComponentLocation();//RightAim->GetComponentLocation();
+			FVector end = start + rightScene->GetForwardVector() * 100000;
 			FCollisionQueryParams params;
 			params.AddIgnoredActor(this);  // 액터는 나 자신,
 			params.AddIgnoredComponent(MeshRight); // 혹시 내 매쉬에 닿을 수 있으므로
@@ -225,7 +233,7 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 			FQuat startRot = FRotator(0, 0, 0).Quaternion();
 
 			//bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, start, end, ECC_Visibility, params);
-			bool bResult = GetWorld()->SweepSingleByChannel(hitInfo, start, end, startRot, ECC_Visibility, FCollisionShape::MakeSphere(10), params);
+			bool bResult = GetWorld()->SweepSingleByChannel(hitInfo, start, end, startRot, ECC_Visibility, FCollisionShape::MakeSphere(60), params);
 			DrawDebugBoxTraceSingle(GetWorld(), start, end, FVector(10), FRotator(0, 0, 0), EDrawDebugTrace::ForDuration, true, hitInfo, FLinearColor::Green, FLinearColor::Red, 2.0f);
 			// 만약 부딪힌것이 있다면
 			if (bResult)
@@ -234,12 +242,9 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 					if (enemy != nullptr)
 					{
 						enemy->Hit(false);
-						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(3.0f));
+						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(1.0f));
 					}
-				
 			}
-			
-
 
 			////UE_LOG(LogTemp, Warning, TEXT("1111111"));
 			////마우스 커서 입력값 확인
@@ -311,13 +316,10 @@ void AGunPlayer::ONReroad(const FInputActionValue& value)
 
 void AGunPlayer::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	enemy = Cast<ABaseEnemy>(OtherActor);
 	if (OtherActor->IsA<ABaseEnemy>())
 	{
-		enemy = Cast<ABaseEnemy>(OtherActor);
-		if (enemy != nullptr)
-		{
-			enemy->Hit(true);
-		}
+		enemy->Hit(true);
 	}
 
 }

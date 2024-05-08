@@ -48,6 +48,9 @@ public:
 	class USkeletalMeshComponent* MeshRight;
 
 	UPROPERTY(EditDefaultsOnly)
+	class USceneComponent* rightScene;
+
+	UPROPERTY(EditDefaultsOnly)
 	class USphereComponent* LeftHitComp;
 
 	UPROPERTY(EditDefaultsOnly)
