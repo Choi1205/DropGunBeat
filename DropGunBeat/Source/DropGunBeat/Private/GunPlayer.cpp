@@ -148,6 +148,7 @@ void AGunPlayer::BeginPlay()
 	//MeshLeft->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap);
 
 	PlayerWidget = Cast<UPlayerWidget>(PlayerGunWidgetComp->GetWidget());
+	shieldWidget = Cast<UshieldWidget>(PlayerShieldWidgetComp->GetWidget());
 
 }
 
@@ -260,6 +261,10 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 					else if (widgetLevel != nullptr)
 					{
 						widgetLevel->MoveLevel();
+							if (shieldWidget != nullptr)
+							{
+								shieldWidget->startShield();
+							}
 					}
 
 					
@@ -355,17 +360,19 @@ void AGunPlayer::OnDamaged()
 	pc = GetController<APlayerController>();
 	if (bshield == true)
 	{
-		bshield = false;
 		// 페이드 인 효과를 준다.
 		if (pc != nullptr)
 		{
 			pc->PlayerCameraManager->StartCameraFade(0, 1, 1.0f, FLinearColor::Red);
+			//FMath::FInterpTo(1,1,0.5,0.1);
+				
 		}
 
 		if (shieldWidget != nullptr)
 		{
-
+			shieldWidget->hitShield();
 		}
+		bshield = false;
 	}
 	
 	else if (bshield == false)
@@ -378,14 +385,20 @@ void AGunPlayer::OnDamaged()
 void AGunPlayer::shieldrecovery()
 {
 	/*if (enemy->Hit());
-	{
+	{*/
+		shieldWidget->removeShield(-1);
 		recovery += 1;
-		if (recovery == 3)
+		if (recovery == 4)
 		{
 			bshield = true;
+			if (shieldWidget != nullptr)
+			{
+				shieldWidget->produceShield();
+				recovery = 0;
+			}
+			
 		}
-	}*/
-
+	//}
 	
 }
 

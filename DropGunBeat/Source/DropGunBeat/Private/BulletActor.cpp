@@ -54,7 +54,7 @@ void ABulletActor::CallHit(class UPrimitiveComponent* OverlappedComp, class AAct
 {
 	AGunPlayer* playerREF = Cast<AGunPlayer>(OtherActor);
 	if (playerREF) {
-		//playerREF->OnDamaged();
+		playerREF->OnDamaged();
 		//이거 켜면 테스트 골치아프니까 나중에 켜자
 		UE_LOG(LogTemp, Warning, TEXT("HIT!!!"));
 		Destroy();
