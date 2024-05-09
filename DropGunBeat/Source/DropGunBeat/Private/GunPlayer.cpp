@@ -363,7 +363,7 @@ void AGunPlayer::OnDamaged()
 		// 페이드 인 효과를 준다.
 		if (pc != nullptr)
 		{
-			pc->PlayerCameraManager->StartCameraFade(0, 1, 1.0f, FLinearColor::Red);
+			pc->PlayerCameraManager->StartCameraFade(1, 0, 1.0f, FLinearColor::Red);
 			//FMath::FInterpTo(1,1,0.5,0.1);
 				
 		}

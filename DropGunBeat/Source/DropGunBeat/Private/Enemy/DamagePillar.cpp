@@ -46,7 +46,7 @@ void ADamagePillar::OnOverlaped(UPrimitiveComponent* OverlappedComponent, AActor
 	AGunPlayer* playerREF = Cast<AGunPlayer>(OtherActor);
 	if (!bIsDamaged && playerREF != nullptr) {
 		bIsDamaged = true;
-		//playerREF->OnDamaged();
+		playerREF->OnDamaged();
 		//데미지 입히면 귀찮으니 테스트 동안 노데미지
 		GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateLambda([&]() {
 			Destroy();
