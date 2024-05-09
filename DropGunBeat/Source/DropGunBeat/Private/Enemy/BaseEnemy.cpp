@@ -80,7 +80,7 @@ void ABaseEnemy::BeginPlay()
 void ABaseEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	switch (enemyState)
 	{
 	case EEnemyState::IDLE:
@@ -98,7 +98,6 @@ void ABaseEnemy::Tick(float DeltaTime)
 	default:
 		break;
 	}
-
 }
 
 // Called to bind functionality to input
@@ -146,7 +145,9 @@ void ABaseEnemy::Idle(float deltaTime)
 	currentTimer = FMath::Min(currentTimer + deltaTime, idleCooldown);
 	if(currentTimer == idleCooldown){
 		currentTimer = 0.0f;
-		SetActorRotation((targetPlace - GetActorLocation()).Rotation());
+		FVector towardVec = targetPlace - GetActorLocation();
+		towardVec.Z = 0.0f;
+		SetActorRotation(towardVec.Rotation());
 		enemyState = EEnemyState::MOVE;
 	}
 }
@@ -176,13 +177,13 @@ void ABaseEnemy::Aim(float deltaTime)
 	else {
 		//플레이어를 조준하는 명령어를 넣기
 		if(playerREF != nullptr) {
-			aimDir = playerREF->boxcomp->GetComponentLocation() - firePoint->GetComponentLocation() + FVector(32.0f, 0.0f, 0.0f);
+			aimDir.Z = 0.0f;
+			SetActorRotation(aimDir.Rotation());
+			aimDir = playerREF->boxcomp->GetComponentLocation() - firePoint->GetComponentLocation() + FVector(16.0f, 0.0f, -5.0f);
 			if (numToFire > fireCounter) {
 				laserPoint->SetWorldRotation(aimDir.Rotation());
 				laserPoint->Activate(true);
 			}
-			aimDir.Z = 0.0f;
-			SetActorRotation(aimDir.Rotation());
 		}
 	}
 }
@@ -191,7 +192,7 @@ void ABaseEnemy::Shoot()
 {
 	if (!bIsFired && playerREF != nullptr && numToFire > fireCounter) {
 		laserPoint->Deactivate();
-		aimDir = playerREF->boxcomp->GetComponentLocation() - firePoint->GetComponentLocation() + FVector(32.0f, 0.0f, 0.0f);
+		aimDir = playerREF->boxcomp->GetComponentLocation() - firePoint->GetComponentLocation() + FVector(16.0f, 0.0f, 0.0f);
 		FActorSpawnParameters params;
 		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		GetWorld()->SpawnActor<ABulletActor>(bulletFactory, firePoint->GetComponentLocation(), aimDir.Rotation(), params);
@@ -209,6 +210,9 @@ bool ABaseEnemy::Hit(bool bIsPunch)
 {
 	UE_LOG(LogTemp, Warning, TEXT("%f"), musicREF->BeatAccuracy());
 	//-0.5 의 절대값으로 들어오므로, 0.5가 가장 정확, 0에 가까울수록 부정확.
+	FVector showDir = playerREF->boxcomp->GetComponentLocation() - GetActorLocation();
+	showDir.Z = 0.0f;
+	scoreWidgetComp->SetWorldRotation(showDir.Rotation());
 	if (bIsPunch) {
 		currentHP = 0;
 		gi->currentScore += 600;
