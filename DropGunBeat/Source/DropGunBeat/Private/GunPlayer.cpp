@@ -24,6 +24,9 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h>
 #include <../../../../../../../Source/Runtime/Engine/Public/KismetTraceUtils.h>
 #include "MainRobeUIActor.h"
+#include "gameStartActor.h"
+#include "bShieldWidget.h"
+#include "shieldWidget.h"
 
 
 AGunPlayer::AGunPlayer()
@@ -89,6 +92,9 @@ AGunPlayer::AGunPlayer()
 	PlayerGunWidgetComp = CreateDefaultSubobject <UWidgetComponent>(TEXT("Player Gun Component"));
 	PlayerGunWidgetComp->SetupAttachment(MeshRight);
 
+	PlayerShieldWidgetComp = CreateDefaultSubobject <UWidgetComponent>(TEXT("Player Shield Component"));
+	PlayerShieldWidgetComp->SetupAttachment(RootComponent);
+
 	//RightAim = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("RightAim"));
 	//RightAim->SetupAttachment(RootComponent);
 	//RightAim->SetTrackingMotionSource(TEXT("RightAim")); // 여기를 기준으로 좌표계를 사용함.
@@ -123,7 +129,7 @@ void AGunPlayer::BeginPlay()
 	bulletFactory = 15;
 
 	// 플레이어컨트롤러를 가져오고싶다.
-	auto* pc = Cast<APlayerController>(Controller); // AVRPlayer의 컨트롤러를 가져오는것
+	pc = Cast<APlayerController>(Controller); // AVRPlayer의 컨트롤러를 가져오는것
 
 	// UEnhancedInputLocalPlayerSubsystem를 가져와서
 	if (pc != nullptr)
@@ -210,7 +216,7 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 	
 	if (bulletFactory > 0)
 	{ 
-		bulletFactory += -1;
+		bulletFactory -= 1;
 		if (PlayerWidget != nullptr)
 		{
 			PlayerWidget->remainBullet(-1);
@@ -236,40 +242,34 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 
 			//bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, start, end, ECC_Visibility, params);
 			bool bResult = GetWorld()->SweepSingleByChannel(hitInfo, start, end, startRot, ECC_Visibility, FCollisionShape::MakeSphere(60), params);
-			DrawDebugBoxTraceSingle(GetWorld(), start, end, FVector(10), FRotator(0, 0, 0), EDrawDebugTrace::ForDuration, true, hitInfo, FLinearColor::Green, FLinearColor::Red, 2.0f);
+			DrawDebugBoxTraceSingle(GetWorld(), start, end, FVector(30), FRotator(0, 0, 0), EDrawDebugTrace::ForDuration, true, hitInfo, FLinearColor::Green, FLinearColor::Red, 2.0f);
 			// 만약 부딪힌것이 있다면
 			if (bResult)
 			{
 				enemy = Cast<ABaseEnemy>(hitInfo.GetActor());
+				widgetLevel = Cast<AMainRobeUIActor>(hitInfo.GetActor());
+				startActor = Cast<AgameStartActor>(hitInfo.GetActor());
 					if (enemy != nullptr)
 					{
 						enemy->Hit(false);
 						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(1.0f));
 						return;
 					}
-					widgetLevel = Cast<AMainRobeUIActor>(hitInfo.GetActor());
-					if (widgetLevel != nullptr)
+
+					
+					else if (widgetLevel != nullptr)
 					{
-						if (widgetLevel->bLevel)
+						widgetLevel->MoveLevel();
+					}
+
+					
+					else if (startActor != nullptr)
+					{
+						if (startActor->bPlayStart)
 						{
-							UGameplayStatics::OpenLevel(this, "BBKKBKKLevel");
-						}
-						else
-						{
-							UGameplayStatics::OpenLevel(this, "NightTheaterLevel");
+							UGameplayStatics::OpenLevel(this, "startMap");
 						}
 					}
-					//위젯 = 캐스트<위젯클래스>(히트인포.겟액터)
-					//if(위젯)
-					//{  
-					//	위젯아 불값 내놔!
-					//	if(위젯 불값){
-						//BBKK이동
-					//}
-					// else 나이트 이동
-					//}
-					//위젯이 아니야? 아무것도 안함
-					
 			}
 
 			////UE_LOG(LogTemp, Warning, TEXT("1111111"));
@@ -347,21 +347,33 @@ void AGunPlayer::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	{
 		enemy->Hit(true);
 	}
-
 }
 
 
 void AGunPlayer::OnDamaged()
 {
+	pc = GetController<APlayerController>();
 	if (bshield == true)
 	{
 		bshield = false;
+		// 페이드 인 효과를 준다.
+		if (pc != nullptr)
+		{
+			pc->PlayerCameraManager->StartCameraFade(0, 1, 1.0f, FLinearColor::Red);
+		}
+
+		if (shieldWidget != nullptr)
+		{
+
+		}
 	}
+	
 	else if (bshield == false)
 	{
-		Destroy();
+		//Destroy();
 	}
 }
+
 
 void AGunPlayer::shieldrecovery()
 {

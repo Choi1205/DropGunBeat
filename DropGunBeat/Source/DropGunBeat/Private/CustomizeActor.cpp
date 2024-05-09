@@ -8,7 +8,7 @@
 
 ACustomizeActor::ACustomizeActor()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	sceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	sceneComp->SetupAttachment(RootComponent);

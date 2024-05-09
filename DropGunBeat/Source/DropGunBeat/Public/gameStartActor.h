@@ -4,36 +4,37 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "MainRobeUIActor.generated.h"
+#include "gameStartActor.generated.h"
 
 UCLASS()
-class DROPGUNBEAT_API AMainRobeUIActor : public AActor
+class DROPGUNBEAT_API AgameStartActor : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-	AMainRobeUIActor();
+	AgameStartActor();
 
 	virtual void Tick(float DeltaTime) override;
+
 
 	UPROPERTY()
 	class USceneComponent* sceneComp;
 
 	UPROPERTY(EditAnywhere, Category = "Widget")
-	class UMainRobeUserWidget* MainRobeWidget;
+	class UplayStartWidget* StartWidget;
 
-	UPROPERTY(VisibleAnywhere, Category="Widget")
-	class UWidgetComponent* MainUIComponent;
+	UPROPERTY(VisibleAnywhere, Category = "Widget")
+	class UWidgetComponent* startComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Play")
-	bool bLevel = false;
+	bool bPlayStart = true;
 
-	void MoveLevel();
+	
+
+
+
 
 protected:
 	virtual void BeginPlay() override;
-
-
-	
 
 };

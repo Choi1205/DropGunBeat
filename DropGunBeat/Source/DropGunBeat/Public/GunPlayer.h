@@ -81,6 +81,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Widget")
 	class UPlayerWidget* PlayerWidget;
 
+	UPROPERTY(VisibleAnywhere, Category="MySettings|Components")
+	class UWidgetComponent* PlayerShieldWidgetComp;
+
 	void ONFire(const FInputActionValue& value);
 	void ONTurn(const FInputActionValue& value);
 	void ONReroad(const FInputActionValue& value);
@@ -120,6 +123,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY()
+	class APlayerController* pc;
+
+	UPROPERTY()
 	float endTime = 3.f;
 	UPROPERTY()
 	float moveTime = 0.0f;
@@ -140,13 +146,6 @@ protected:
 	UPROPERTY()
 	FVector targetPos;
 
-	//UPROPERTY()
-	//FVector playerfireLoc;
-
-	//UPROPERTY()
-	//FRotator playerfireRot;
-
-
 	UPROPERTY(EditAnywhere, Category = "mysettings")
 	TSubclassOf<UDamageType> DamageType;
 	
@@ -161,6 +160,15 @@ protected:
 
 	UPROPERTY()
 	class AMainRobeUIActor* widgetLevel;
+
+	UPROPERTY(EditAnywhere, Category = "Widget")
+	class UshieldWidget* shieldWidget;
+
+	UPROPERTY(EditAnywhere, Category = "Widget")
+	class UbShieldWidget* bshieldWidget;
+
+	UPROPERTY()
+	class AgameStartActor* startActor;
 
 private:
 	// 위젯이 플레이어를 바라보게 
