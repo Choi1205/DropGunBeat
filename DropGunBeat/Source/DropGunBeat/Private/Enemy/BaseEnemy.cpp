@@ -177,6 +177,7 @@ void ABaseEnemy::Aim(float deltaTime)
 	else {
 		//플레이어를 조준하는 명령어를 넣기
 		if(playerREF != nullptr) {
+			aimDir = playerREF->boxcomp->GetComponentLocation() - GetActorLocation();
 			aimDir.Z = 0.0f;
 			SetActorRotation(aimDir.Rotation());
 			aimDir = playerREF->boxcomp->GetComponentLocation() - firePoint->GetComponentLocation() + FVector(16.0f, 0.0f, -5.0f);
