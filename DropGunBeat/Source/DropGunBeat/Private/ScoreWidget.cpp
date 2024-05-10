@@ -11,6 +11,9 @@
 void UScoreWidget::NativeConstruct()
 {
 	SetScore();
+
+	UmusicGameInstance* GI = Cast <UmusicGameInstance>(GetGameInstance());
+	GI->currentScore = 0;
 }
 
 void UScoreWidget::SetScore()
