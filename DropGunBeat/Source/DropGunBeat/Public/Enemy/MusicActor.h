@@ -38,6 +38,11 @@ public:
 
 	bool bIsMusicStart = false;
 
+	bool bIsVolumeUp = false;
+
+	float volumeUpTime = 3.0f;
+	float hitTime;
+
 	UFUNCTION(BlueprintCallable)
 	float GetBeatTime();
 
@@ -46,4 +51,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void MusicStart();
+
+	UFUNCTION(BlueprintCallable)
+	void VolumeHitReact(bool bIsDead);
+
 };

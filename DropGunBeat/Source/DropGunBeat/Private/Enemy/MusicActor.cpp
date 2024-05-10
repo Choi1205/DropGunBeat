@@ -38,6 +38,14 @@ void AMusicActor::Tick(float DeltaTime)
 	if(bIsMusicStart) {
 		currentTime += DeltaTime;
 	}
+
+	if (bIsVolumeUp) {
+		float hitDeltaTime = FMath::Clamp(currentTime - hitTime, 0.0f, 3.0f);
+		audioComp->AdjustVolume(0.01f, FMath::Lerp(0.001f, 1.0f, hitDeltaTime / volumeUpTime), EAudioFaderCurve::Linear);
+		if (hitDeltaTime == 3.0f) {
+			bIsVolumeUp = false;
+		}
+	}
 }
 
 float AMusicActor::GetBeatTime()
@@ -58,5 +66,14 @@ void AMusicActor::MusicStart()
 {
 	audioComp->Activate(true);
 	bIsMusicStart = true;
+}
+
+void AMusicActor::VolumeHitReact(bool bIsDead)
+{
+	audioComp->AdjustVolume(0.01f, 0.001f, EAudioFaderCurve::Linear);
+	if (!bIsDead) {
+		bIsVolumeUp = true;
+		hitTime = currentTime;
+	}
 }
 

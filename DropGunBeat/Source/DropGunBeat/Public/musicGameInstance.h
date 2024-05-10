@@ -23,6 +23,4 @@ public:
 	int32 bestBBKKScore = 0;
 
 	int32 bestNightScore = 0;
-
-	
 };
