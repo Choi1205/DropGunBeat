@@ -40,5 +40,4 @@ void UshieldWidget::removeShield(int32 ShieldCount)
 	FText ShieldText = FText::FromString(ShieldString);
 	//UE_LOG(LogTemp, Warning, TEXT("remain"));
 	CurrentShield->SetText(ShieldText);
-
 }

@@ -27,6 +27,9 @@
 #include "gameStartActor.h"
 #include "bShieldWidget.h"
 #include "shieldWidget.h"
+#include "Enemy/MusicActor.h"
+#include <../../../../../../../Source/Runtime/Engine/Public/EngineUtils.h>
+
 
 
 AGunPlayer::AGunPlayer()
@@ -76,12 +79,9 @@ AGunPlayer::AGunPlayer()
 		MeshRight->SetRelativeScale3D(FVector(20.0f));
 	}
 
-	
-
 	// 오른손과 왼손에 컴포넌트 컬리전을 넣어서 근접공격을 만든다
 	//LeftHitComp = CreateDefaultSubobject<USphereComponent>(TEXT("LeftHitComp"));
 	//LeftHitComp->SetupAttachment(MeshLeft);
-
 
 	RightHitComp = CreateDefaultSubobject<USphereComponent>(TEXT("RightHitComp"));
 	RightHitComp->SetupAttachment(MeshRight);
@@ -89,16 +89,19 @@ AGunPlayer::AGunPlayer()
 	//MeshLeft->SetGenerateOverlapEvents(true); // 콜리전으로 변경해야함
 	MeshRight->SetGenerateOverlapEvents(true);
 
+	// 플레이어 건 위젯
 	PlayerGunWidgetComp = CreateDefaultSubobject <UWidgetComponent>(TEXT("Player Gun Component"));
 	PlayerGunWidgetComp->SetupAttachment(MeshRight);
 
+	// 플레이어 쉴드위젯
 	PlayerShieldWidgetComp = CreateDefaultSubobject <UWidgetComponent>(TEXT("Player Shield Component"));
-	PlayerShieldWidgetComp->SetupAttachment(RootComponent);
+	PlayerShieldWidgetComp->SetupAttachment(VRCamera);
 
 	//RightAim = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("RightAim"));
 	//RightAim->SetupAttachment(RootComponent);
 	//RightAim->SetTrackingMotionSource(TEXT("RightAim")); // 여기를 기준으로 좌표계를 사용함.
 
+	
 	rightScene = CreateDefaultSubobject<USceneComponent>(TEXT("player Gun Fire Target"));
 	rightScene->SetupAttachment(MeshRight);
 	rightScene->SetRelativeLocation(FVector(0.25f, 0.0f, 0.58f));
@@ -106,20 +109,38 @@ AGunPlayer::AGunPlayer()
 
 }
 
-
 void AGunPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// 위젯 연결
+	PlayerWidget = Cast<UPlayerWidget>(PlayerGunWidgetComp->GetWidget());
+	shieldWidget = Cast<UshieldWidget>(PlayerShieldWidgetComp->GetWidget());
+	for (TActorIterator<AMusicActor> iter(GetWorld()); iter; ++iter) {
+		musicActor = Cast<AMusicActor>(*iter);
+	}
+
+
+	
+
 	startLoc = GetActorLocation();
 
+	// 플레이어 이동속도
 	if (GetWorld()->GetMapName().Contains(FString("BBKKBKK"))) {
 		targetLoc = GetActorLocation() + FVector(31400.0f, 0.0f, 0.0f);
 		endTime = 136.0f;
+		if (shieldWidget != nullptr)
+		{
+			shieldWidget->startShield();
+		}
 	}
 	else if (GetWorld()->GetMapName().Contains(FString("NightTheater"))) {
 		targetLoc = GetActorLocation() + FVector(31400.0f, 0.0f, 0.0f);
 		endTime = 130.0f;
+		if (shieldWidget != nullptr)
+		{
+			shieldWidget->startShield();
+		}
 	}
 	else {
 		targetLoc = GetActorLocation() + FVector(1000, 0, 0);
@@ -128,32 +149,24 @@ void AGunPlayer::BeginPlay()
 
 	bulletFactory = 15;
 
-	// 플레이어컨트롤러를 가져오고싶다.
-	pc = Cast<APlayerController>(Controller); // AVRPlayer의 컨트롤러를 가져오는것
-
-	// UEnhancedInputLocalPlayerSubsystem를 가져와서
+	// 인풋
+	pc = Cast<APlayerController>(Controller);
+	
 	if (pc != nullptr)
 	{
 		auto subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
 		if (subsystem)
 		{
-			// AddMappingContext를 호출하고싶다.
 			subsystem->AddMappingContext(IMC_GunPlayer, 0);
 		}
 		pc->SetShowMouseCursor(true);
 	}
 
-	
+	// 펀치공격
 	RightHitComp->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap); // 콜리전으로 변경해야함
 	//MeshLeft->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap);
 
-	PlayerWidget = Cast<UPlayerWidget>(PlayerGunWidgetComp->GetWidget());
-	shieldWidget = Cast<UshieldWidget>(PlayerShieldWidgetComp->GetWidget());
-
 }
-
-
-
 
 void AGunPlayer::Tick(float DeltaTime)
 {
@@ -178,20 +191,9 @@ void AGunPlayer::Tick(float DeltaTime)
 		BaseEnemy->Perpect = false;
 	}*/
 
-	// 플레이어 나이아가라 위치
-	/*playerfireLoc = GetActorLocation()+FVector(100,0,0); 
-	playerfireRot = GetActorRotation();*/
-
-	if (bshield == false)
-	{
-		shieldrecovery();
-	}
-
 	// 항상 위젯이 날 바라보도록
 	//PlayerGunWidgetComp->SetWorldRotation(BillboardWidgetComponent(this));
-
 }
-
 
 void AGunPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -206,9 +208,7 @@ void AGunPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		enhancedInputComponent->BindAction(IA_Turn, ETriggerEvent::Triggered, this, &AGunPlayer::ONTurn);
 		enhancedInputComponent->BindAction(IA_Reroad, ETriggerEvent::Started, this, &AGunPlayer::ONReroad);
 	}
-
 }
-
 
 // 총알 발사 인풋
 void AGunPlayer::ONFire(const FInputActionValue& value)
@@ -233,7 +233,7 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 		if (isPressed)
 		{
 			FHitResult hitInfo;
-			FVector start = rightScene->GetComponentLocation();//RightAim->GetComponentLocation();
+			FVector start = rightScene->GetComponentLocation();
 			FVector end = start + rightScene->GetForwardVector() * 100000;
 			FCollisionQueryParams params;
 			params.AddIgnoredActor(this);  // 액터는 나 자신,
@@ -241,9 +241,10 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 
 			FQuat startRot = FRotator(0, 0, 0).Quaternion();
 
-			//bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, start, end, ECC_Visibility, params);
+			// Sphere Trace
 			bool bResult = GetWorld()->SweepSingleByChannel(hitInfo, start, end, startRot, ECC_Visibility, FCollisionShape::MakeSphere(60), params);
 			DrawDebugBoxTraceSingle(GetWorld(), start, end, FVector(30), FRotator(0, 0, 0), EDrawDebugTrace::ForDuration, true, hitInfo, FLinearColor::Green, FLinearColor::Red, 2.0f);
+
 			// 만약 부딪힌것이 있다면
 			if (bResult)
 			{
@@ -252,22 +253,20 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 				startActor = Cast<AgameStartActor>(hitInfo.GetActor());
 					if (enemy != nullptr)
 					{
-						enemy->Hit(false);
 						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(1.0f));
+
+						if (enemy->Hit(false) && !bshield)
+						{
+							shieldrecovery();
+						}
 						return;
 					}
 
-					
 					else if (widgetLevel != nullptr)
 					{
 						widgetLevel->MoveLevel();
-							if (shieldWidget != nullptr)
-							{
-								shieldWidget->startShield();
-							}
 					}
 
-					
 					else if (startActor != nullptr)
 					{
 						if (startActor->bPlayStart)
@@ -328,10 +327,7 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 			//}
 		}
 	}
-	
-	
 }
-
 
 void AGunPlayer::ONTurn(const FInputActionValue& value)
 {
@@ -350,11 +346,14 @@ void AGunPlayer::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	enemy = Cast<ABaseEnemy>(OtherActor);
 	if (OtherActor->IsA<ABaseEnemy>())
 	{
-		enemy->Hit(true);
+		if (enemy->Hit(true) && bshield == false)
+		{
+			shieldrecovery();
+		}
 	}
 }
 
-
+// 공격당하면
 void AGunPlayer::OnDamaged()
 {
 	pc = GetController<APlayerController>();
@@ -364,15 +363,17 @@ void AGunPlayer::OnDamaged()
 		if (pc != nullptr)
 		{
 			pc->PlayerCameraManager->StartCameraFade(1, 0, 1.0f, FLinearColor::Red);
-			//FMath::FInterpTo(1,1,0.5,0.1);
-				
+			 // 불값으로 틱에전달해서 델타세컨드를 통해 음악소리를 조절한다.
+			musicActor->VolumeHitReact(false);
 		}
-
+		
+		// 쉴드위젯을 히트쉴드위젯으로 변경한다.
 		if (shieldWidget != nullptr)
 		{
 			shieldWidget->hitShield();
+			bshield = false;
 		}
-		bshield = false;
+		
 	}
 	
 	else if (bshield == false)
@@ -384,22 +385,20 @@ void AGunPlayer::OnDamaged()
 
 void AGunPlayer::shieldrecovery()
 {
-	/*if (enemy->Hit());
-	{*/
 		shieldWidget->removeShield(-1);
 		recovery += 1;
 		if (recovery == 4)
 		{
-			bshield = true;
 			if (shieldWidget != nullptr)
 			{
+			 // 회복 페이드아웃 효과를 준다.
+				pc->PlayerCameraManager->StartCameraFade(1, 0, 1.0f, FLinearColor::Green);
 				shieldWidget->produceShield();
+				bshield = true;
+				shieldWidget->removeShield(4);
 				recovery = 0;
 			}
-			
 		}
-	//}
-	
 }
 
 //FRotator AGunPlayer::BillboardWidgetComponent(AActor* camActor)

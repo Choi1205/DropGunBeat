@@ -170,6 +170,9 @@ protected:
 	UPROPERTY()
 	class AgameStartActor* startActor;
 
+	UPROPERTY()
+	class AMusicActor* musicActor;
+
 private:
 	// 위젯이 플레이어를 바라보게 
 	//FRotator BillboardWidgetComponent(class AActor* camActor);
