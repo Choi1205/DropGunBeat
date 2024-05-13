@@ -62,6 +62,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = Speed)
 	float PlayerMovespeed = 0.5f;
 
+	// 사운드
+	UPROPERTY(EditAnywhere, Category = "MySettings") // 사운드
+	class USoundBase* fireSound;
+
+
 	// 인풋
 	UPROPERTY(EditDefaultsOnly, Category = VR)
 	class UInputMappingContext* IMC_GunPlayer;

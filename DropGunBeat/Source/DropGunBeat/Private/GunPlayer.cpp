@@ -225,7 +225,7 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 		}
 		if (NI_Fire != nullptr)
 		{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NI_Fire, MeshRight->GetComponentLocation(),MeshRight->GetComponentRotation()); //무기에붙여야함
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NI_Fire, rightScene->GetComponentLocation(), rightScene->GetComponentRotation()); //무기에붙여야함
 		}
 
 		//UE_LOG(LogTemp, Warning, TEXT("2222222"));
@@ -243,7 +243,13 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 
 			// Sphere Trace
 			bool bResult = GetWorld()->SweepSingleByChannel(hitInfo, start, end, startRot, ECC_Visibility, FCollisionShape::MakeSphere(60), params);
-			DrawDebugBoxTraceSingle(GetWorld(), start, end, FVector(30), FRotator(0, 0, 0), EDrawDebugTrace::ForDuration, true, hitInfo, FLinearColor::Green, FLinearColor::Red, 2.0f);
+			//DrawDebugBoxTraceSingle(GetWorld(), start, end, FVector(30), FRotator(0, 0, 0), EDrawDebugTrace::ForDuration, true, hitInfo, FLinearColor::Green, FLinearColor::Red, 2.0f);
+
+			// Sound
+			if (fireSound != nullptr)
+			{
+				UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
+			}
 
 			// 만약 부딪힌것이 있다면
 			if (bResult)
