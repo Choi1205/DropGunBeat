@@ -27,7 +27,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 		// VR카메라 컴포넌트를 생성하고 루트에 붙이고싶다.
-	UPROPERTY(EditDefaultsOnly) // EditDefaultsOnly - 읽기전용 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite) // EditDefaultsOnly - 읽기전용 
 	class UCameraComponent* VRCamera;  // class - 전방선언 약식
 
 	// 모션컨트롤러 왼손, 오른손 생성하고 루트에 붙이고 싶다.

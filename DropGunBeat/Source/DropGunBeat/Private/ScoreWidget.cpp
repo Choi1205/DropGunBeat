@@ -14,8 +14,6 @@ void UScoreWidget::NativeConstruct()
 
 	UmusicGameInstance* GI = Cast <UmusicGameInstance>(GetGameInstance());
 	GI->currentScore = 0;
-
-	GI->bestBBKKScore = bestBBKKPoint;
 }
 
 void UScoreWidget::SetScore()
@@ -25,14 +23,5 @@ void UScoreWidget::SetScore()
 	FString ScoreString = FString::Printf(TEXT("%d"), GI->currentScore);
 	FText ScoreText = FText::FromString(ScoreString);
 	CurrentScore->SetText(ScoreText);
-}
-
-void UScoreWidget::BBKKScore()
-{
-	UmusicGameInstance* GI = Cast <UmusicGameInstance>(GetGameInstance());
-
-	FString ScoreString = FString::Printf(TEXT("%d"), GI->bestBBKKScore);
-	FText ScoreText = FText::FromString(ScoreString);
-	BBKKBastScore->SetText(ScoreText);
 
 }
