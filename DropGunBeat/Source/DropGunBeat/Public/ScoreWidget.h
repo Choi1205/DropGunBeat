@@ -18,7 +18,12 @@ public:
 	UPROPERTY(EditAnywhere ,Category = "MySettings", meta = (BindWidget))
 	class UTextBlock* CurrentScore;
 
+	UPROPERTY(EditAnywhere ,Category = "MySettings", meta = (BindWidget))
+	class UTextBlock* BBKKBastScore;
+
+
 	void SetScore();
+	void BBKKScore();
 
 	UPROPERTY()
 	class AGunPlayer* player;
@@ -26,8 +31,8 @@ public:
 	void NativeConstruct(); // 비긴플레이
 	
 private:
-	int32 bestBBKKScore = 0;
+	int32 bestBBKKPoint = 0;
 
-	int32 bestNightScore = 0;
+	int32 bestNightPoint = 0;
 
 };

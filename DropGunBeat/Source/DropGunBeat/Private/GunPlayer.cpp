@@ -46,6 +46,7 @@ AGunPlayer::AGunPlayer()
 	boxcomp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
 	boxcomp->SetupAttachment(VRCamera);
 
+
 	// 모션컨트롤러 왼손, 오른손 생성하고 루트에 붙이고 싶다.
 	//MotionLeft = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MotionLeft"));
 	//MotionLeft->SetTrackingMotionSource(TEXT("Left"));
@@ -60,6 +61,7 @@ AGunPlayer::AGunPlayer()
 	//MeshLeft->SetupAttachment(MotionLeft);
 	MeshRight = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshRight"));
 	MeshRight->SetupAttachment(MotionRight);
+
 
 	// 왼손, 오른손 스켈레탈 메시를로드해서 적용하고싶다.
 	//ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMeshLeft(TEXT("/Script/Engine.SkeletalMesh'/Game/assets/pistol-desert-eagle-weapon-model-cs2/DEAGLE.DEAGLE'"));
@@ -117,7 +119,8 @@ void AGunPlayer::BeginPlay()
 	// 위젯 연결
 	PlayerWidget = Cast<UPlayerWidget>(PlayerGunWidgetComp->GetWidget());
 	shieldWidget = Cast<UshieldWidget>(PlayerShieldWidgetComp->GetWidget());
-	for (TActorIterator<AMusicActor> iter(GetWorld()); iter; ++iter) {
+	for (TActorIterator<AMusicActor> iter(GetWorld()); iter; ++iter) 
+	{
 		musicActor = Cast<AMusicActor>(*iter);
 	}
 
@@ -159,7 +162,6 @@ void AGunPlayer::BeginPlay()
 	// 펀치공격
 	RightHitComp->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap); // 콜리전으로 변경해야함
 	//MeshLeft->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap);
-
 }
 
 void AGunPlayer::Tick(float DeltaTime)
@@ -172,18 +174,13 @@ void AGunPlayer::Tick(float DeltaTime)
 		//UE_LOG(LogTemp,Warning,TEXT("11111"));
 		SetActorLocation(FMath::Lerp(startLoc, targetLoc, (moveTime/endTime)), true);
 	}
-	/*else
-	{
-		moveTime = 0;
-		UE_Log(LogTemp, warning, TEXT("%s"), Score);
 
-	}*/
-
-	/*if (BaseEnemy->Perpect)
+	// 플레이어 재장전
+	if (FVector::Dist(VRCamera->GetComponentLocation(), MeshRight->GetComponentLocation()) > 70)
 	{
-		Score += 400;
-		BaseEnemy->Perpect = false;
-	}*/
+		ONReroad();
+		UE_LOG(LogTemp,Warning,TEXT("reroad"));
+	}
 
 	// 항상 위젯이 날 바라보도록
 	//PlayerGunWidgetComp->SetWorldRotation(BillboardWidgetComponent(this));
@@ -200,7 +197,7 @@ void AGunPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		// 함수를 인풋 컴포넌트에 연결한다.
 		enhancedInputComponent->BindAction(IA_Fire, ETriggerEvent::Started, this, &AGunPlayer::ONFire);
 		enhancedInputComponent->BindAction(IA_Turn, ETriggerEvent::Triggered, this, &AGunPlayer::ONTurn);
-		enhancedInputComponent->BindAction(IA_Reroad, ETriggerEvent::Started, this, &AGunPlayer::ONReroad);
+		//enhancedInputComponent->BindAction(IA_Reroad, ETriggerEvent::Started, this, &AGunPlayer::ONReroad);
 	}
 }
 
@@ -351,7 +348,7 @@ void AGunPlayer::ONTurn(const FInputActionValue& value)
 	AddControllerYawInput(v);
 }
 
-void AGunPlayer::ONReroad(const FInputActionValue& value)
+void AGunPlayer::ONReroad()
 {
 	bulletFactory = 15;
 	PlayerWidget->remainBullet(15);
@@ -389,7 +386,6 @@ void AGunPlayer::OnDamaged()
 			shieldWidget->hitShield();
 			bshield = false;
 		}
-		
 	}
 	
 	else if (bshield == false)
