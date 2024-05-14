@@ -117,12 +117,7 @@ void AGunPlayer::BeginPlay()
 	// 위젯 연결
 	PlayerWidget = Cast<UPlayerWidget>(PlayerGunWidgetComp->GetWidget());
 	shieldWidget = Cast<UshieldWidget>(PlayerShieldWidgetComp->GetWidget());
-	for (TActorIterator<AMusicActor> iter(GetWorld()); iter; ++iter) {
-		musicActor = Cast<AMusicActor>(*iter);
-	}
-
 	gi = Cast<UmusicGameInstance>(GetGameInstance());
-	
 
 	SetStartLoc();
 
@@ -137,7 +132,7 @@ void AGunPlayer::BeginPlay()
 		targetLoc = GetActorLocation() + FVector(1000, 0, 0);
 		endTime = 3.0f;
 	}
-	else {
+	else if (GetWorld()->GetMapName().Contains(FString("startMap")) || GetWorld()->GetMapName().Contains(FString("gameStartMap"))) {
 		targetLoc = GetActorLocation();
 		endTime = 1.0f;
 	}
@@ -168,8 +163,17 @@ void AGunPlayer::Tick(float DeltaTime)
 
 	if (bStart && moveTime < endTime)
 	{
+		if (!bIsCastingDone) {
+			for (TActorIterator<AMusicActor> iter(GetWorld()); iter; ++iter) {
+				musicActor = Cast<AMusicActor>(*iter);
+			}
+			if (musicActor != nullptr) {
+				bIsCastingDone = true;
+			}
+		}
+
 		moveTime += DeltaTime;
-		//UE_LOG(LogTemp,Warning,TEXT("11111"));
+		UE_LOG(LogTemp, Warning, TEXT("%f / %f"), moveTime, endTime);
 		SetActorLocation(FMath::Lerp(startLoc, targetLoc, (moveTime/endTime)), true);
 	}
 	
@@ -201,17 +205,21 @@ void AGunPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 //플레이어 스타트 위치 지정
 void AGunPlayer::SetStartLoc()
 {
+	gi = Cast<UmusicGameInstance>(GetGameInstance());
 	startLoc = GetActorLocation();
-
+	
 	if (gi->bIsPlaingBBKK){
 		targetLoc = GetActorLocation() + FVector(31400.0f, 0.0f, 0.0f);
 		endTime = 136.0f;
+		UE_LOG(LogTemp, Warning, TEXT("%f"), endTime);
 	}
 	else {
 		targetLoc = GetActorLocation() + FVector(31400.0f, 0.0f, 0.0f);
 		endTime = 130.0f;
+		UE_LOG(LogTemp, Warning, TEXT("%f"), endTime);
 	}
-
+	UE_LOG(LogTemp, Warning, TEXT("start : %f, %f, %f"), startLoc.X, startLoc.Y, startLoc.Z);
+	UE_LOG(LogTemp, Warning, TEXT("end : %f, %f, %f"), targetLoc.X, targetLoc.Y, targetLoc.Z);
 }
 
 // 총알 발사 인풋

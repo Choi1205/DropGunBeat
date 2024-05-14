@@ -22,19 +22,8 @@ AMainRobeUIActor::AMainRobeUIActor()
 
 void AMainRobeUIActor::MoveLevel()
 {
-	if (gi != nullptr) {
-		gi->bIsPlaingBBKK = bLevel;
-	}
-
-	if (bLevel)
-	{
-		UGameplayStatics::OpenLevel(this, "BBKKBKKLevel");
-	}
-	else
-	{
-		UGameplayStatics::OpenLevel(this, "NightTheaterLevel");
-	}
-
+	gi->bIsPlaingBBKK = bLevel;
+	UGameplayStatics::OpenLevel(this, "LoadingLevel");
 }
 
 void AMainRobeUIActor::BeginPlay()

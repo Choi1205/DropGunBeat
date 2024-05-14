@@ -115,6 +115,10 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bStart = false;
 
+	//캐스팅 완료 판단용 변수
+	UPROPERTY()
+	bool bIsCastingDone = false;
+
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* FX_FireHit;
 	
