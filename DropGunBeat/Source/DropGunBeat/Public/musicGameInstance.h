@@ -21,7 +21,7 @@ public:
 	//스테이지중에 증가하고, 정산할때 0으로 바꿔줄 것.
 	int32 currentScore = 0;
 
-	int32 bestBBKKScore = 0;
+	int32 bestBBKKScore;
 
 	int32 bestNightScore = 0;
 };
