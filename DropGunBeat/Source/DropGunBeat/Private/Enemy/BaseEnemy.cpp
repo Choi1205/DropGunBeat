@@ -133,11 +133,12 @@ void ABaseEnemy::FindMusic()
 
 	if (musics.Num() > 0) {
 		musicREF = musics[0];
+		beatTime = musicREF->GetBeatTime();
 	}
 	else {
 		musicREF = nullptr;
+		beatTime = 1.0f;
 	}
-	beatTime = musicREF->GetBeatTime();
 }
 
 void ABaseEnemy::Idle(float deltaTime)
@@ -209,7 +210,7 @@ void ABaseEnemy::Shoot()
 
 bool ABaseEnemy::Hit(bool bIsPunch)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%f"), musicREF->BeatAccuracy());
+	//UE_LOG(LogTemp, Warning, TEXT("%f"), musicREF->BeatAccuracy());
 	//-0.5 의 절대값으로 들어오므로, 0.5가 가장 정확, 0에 가까울수록 부정확.
 	FVector showDir = playerREF->boxcomp->GetComponentLocation() - GetActorLocation();
 	showDir.Z = 0.0f;
@@ -220,7 +221,11 @@ bool ABaseEnemy::Hit(bool bIsPunch)
 		scoreWidget->ShowScore(600);
 	}
 	else {
-		float accuracy = musicREF->BeatAccuracy();
+		float accuracy = 1.0f;
+		if (musicREF) {
+			accuracy = musicREF->BeatAccuracy();
+		}
+
 		if (enemyState != EEnemyState::DIE) {
 			currentHP--;
 

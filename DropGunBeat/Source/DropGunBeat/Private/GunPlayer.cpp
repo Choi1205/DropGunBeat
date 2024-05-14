@@ -46,7 +46,6 @@ AGunPlayer::AGunPlayer()
 	boxcomp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
 	boxcomp->SetupAttachment(VRCamera);
 
-
 	// 모션컨트롤러 왼손, 오른손 생성하고 루트에 붙이고 싶다.
 	//MotionLeft = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MotionLeft"));
 	//MotionLeft->SetTrackingMotionSource(TEXT("Left"));
@@ -61,7 +60,6 @@ AGunPlayer::AGunPlayer()
 	//MeshLeft->SetupAttachment(MotionLeft);
 	MeshRight = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshRight"));
 	MeshRight->SetupAttachment(MotionRight);
-
 
 	// 왼손, 오른손 스켈레탈 메시를로드해서 적용하고싶다.
 	//ConstructorHelpers::FObjectFinder<USkeletalMesh> TempMeshLeft(TEXT("/Script/Engine.SkeletalMesh'/Game/assets/pistol-desert-eagle-weapon-model-cs2/DEAGLE.DEAGLE'"));
@@ -119,8 +117,7 @@ void AGunPlayer::BeginPlay()
 	// 위젯 연결
 	PlayerWidget = Cast<UPlayerWidget>(PlayerGunWidgetComp->GetWidget());
 	shieldWidget = Cast<UshieldWidget>(PlayerShieldWidgetComp->GetWidget());
-	for (TActorIterator<AMusicActor> iter(GetWorld()); iter; ++iter) 
-	{
+	for (TActorIterator<AMusicActor> iter(GetWorld()); iter; ++iter) {
 		musicActor = Cast<AMusicActor>(*iter);
 	}
 
@@ -162,6 +159,7 @@ void AGunPlayer::BeginPlay()
 	// 펀치공격
 	RightHitComp->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap); // 콜리전으로 변경해야함
 	//MeshLeft->OnComponentBeginOverlap.AddDynamic(this, &AGunPlayer::BeginOverlap);
+
 }
 
 void AGunPlayer::Tick(float DeltaTime)
@@ -174,12 +172,11 @@ void AGunPlayer::Tick(float DeltaTime)
 		//UE_LOG(LogTemp,Warning,TEXT("11111"));
 		SetActorLocation(FMath::Lerp(startLoc, targetLoc, (moveTime/endTime)), true);
 	}
-
-	// 플레이어 재장전
+	
 	if (FVector::Dist(VRCamera->GetComponentLocation(), MeshRight->GetComponentLocation()) > 70)
 	{
 		ONReroad();
-		UE_LOG(LogTemp,Warning,TEXT("reroad"));
+		UE_LOG(LogTemp, Warning, TEXT("reload"));
 	}
 
 	// 항상 위젯이 날 바라보도록
@@ -386,6 +383,7 @@ void AGunPlayer::OnDamaged()
 			shieldWidget->hitShield();
 			bshield = false;
 		}
+		
 	}
 	
 	else if (bshield == false)
