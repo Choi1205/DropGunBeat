@@ -4,6 +4,7 @@
 #include "MainRobeUIActor.h"
 #include <../../../../../../../Source/Runtime/UMG/Public/Components/WidgetComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h>
+#include "musicGameInstance.h"
 
 // Sets default values
 AMainRobeUIActor::AMainRobeUIActor()
@@ -21,6 +22,10 @@ AMainRobeUIActor::AMainRobeUIActor()
 
 void AMainRobeUIActor::MoveLevel()
 {
+	if (gi != nullptr) {
+		gi->bIsPlaingBBKK = bLevel;
+	}
+
 	if (bLevel)
 	{
 		UGameplayStatics::OpenLevel(this, "BBKKBKKLevel");
@@ -38,6 +43,7 @@ void AMainRobeUIActor::BeginPlay()
 	
 	MainRobeWidget = Cast<UMainRobeUserWidget>(MainUIComponent->GetWidget());
 
+	gi = Cast<UmusicGameInstance>(GetGameInstance());
 }
 
 

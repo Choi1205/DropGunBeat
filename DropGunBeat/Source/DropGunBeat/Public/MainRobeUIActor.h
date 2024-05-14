@@ -30,6 +30,8 @@ public:
 
 	void MoveLevel();
 
+	class UmusicGameInstance* gi = nullptr;
+
 protected:
 	virtual void BeginPlay() override;
 

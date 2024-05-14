@@ -122,7 +122,10 @@ public:
 	UPROPERTY()
 	int32 bulletFactory = 0;
 	
-	
+	UFUNCTION(BlueprintCallable)
+	void SetStartLoc();
+
+	class UmusicGameInstance* gi = nullptr;
 
 protected:
 	virtual void BeginPlay() override;

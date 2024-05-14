@@ -29,6 +29,7 @@
 #include "shieldWidget.h"
 #include "Enemy/MusicActor.h"
 #include <../../../../../../../Source/Runtime/Engine/Public/EngineUtils.h>
+#include "musicGameInstance.h"
 
 
 
@@ -120,33 +121,26 @@ void AGunPlayer::BeginPlay()
 		musicActor = Cast<AMusicActor>(*iter);
 	}
 
-
+	gi = Cast<UmusicGameInstance>(GetGameInstance());
 	
 
-	startLoc = GetActorLocation();
+	SetStartLoc();
 
 	// 플레이어 이동속도
-	if (GetWorld()->GetMapName().Contains(FString("BBKKBKK"))) {
-		targetLoc = GetActorLocation() + FVector(31400.0f, 0.0f, 0.0f);
-		endTime = 136.0f;
+	if (GetWorld()->GetMapName().Contains(FString("LoadingLevel"))) {
 		if (shieldWidget != nullptr)
 		{
 			shieldWidget->startShield();
 		}
 	}
-	else if (GetWorld()->GetMapName().Contains(FString("NightTheater"))) {
-		targetLoc = GetActorLocation() + FVector(31400.0f, 0.0f, 0.0f);
-		endTime = 130.0f;
-		if (shieldWidget != nullptr)
-		{
-			shieldWidget->startShield();
-		}
-	}
-	else {
+	else if (GetWorld()->GetMapName().Contains(FString("TextLevel"))) {
 		targetLoc = GetActorLocation() + FVector(1000, 0, 0);
 		endTime = 3.0f;
 	}
-
+	else {
+		targetLoc = GetActorLocation();
+		endTime = 1.0f;
+	}
 	bulletFactory = 15;
 
 	// 인풋
@@ -208,6 +202,22 @@ void AGunPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		enhancedInputComponent->BindAction(IA_Turn, ETriggerEvent::Triggered, this, &AGunPlayer::ONTurn);
 		enhancedInputComponent->BindAction(IA_Reroad, ETriggerEvent::Started, this, &AGunPlayer::ONReroad);
 	}
+}
+
+//플레이어 스타트 위치 지정
+void AGunPlayer::SetStartLoc()
+{
+	startLoc = GetActorLocation();
+
+	if (gi->bIsPlaingBBKK){
+		targetLoc = GetActorLocation() + FVector(31400.0f, 0.0f, 0.0f);
+		endTime = 136.0f;
+	}
+	else {
+		targetLoc = GetActorLocation() + FVector(31400.0f, 0.0f, 0.0f);
+		endTime = 130.0f;
+	}
+
 }
 
 // 총알 발사 인풋
