@@ -36,4 +36,14 @@ public:
 
 	UFUNCTION()
 	void OnOverlaped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class ADamagePillar> pillarFactory;
+	UPROPERTY(EditAnywhere)
+	bool bIsNeedRepete = false;
+	UPROPERTY(EditAnywhere)
+	int32 repeteTime = 0;
+	UPROPERTY(EditAnywhere)
+	float repeteDistance;
+	FVector spawnLoc;
 };

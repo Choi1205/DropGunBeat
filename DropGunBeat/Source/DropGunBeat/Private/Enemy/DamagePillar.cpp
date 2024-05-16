@@ -32,6 +32,18 @@ void ADamagePillar::BeginPlay()
 	Super::BeginPlay();
 	
 	boxComp->OnComponentBeginOverlap.AddDynamic(this, &ADamagePillar::OnOverlaped);
+
+	if (bIsNeedRepete) {
+		spawnLoc = GetActorLocation();
+		FActorSpawnParameters params;
+		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		for(int32 i = 1; i <= repeteTime; i++){
+			spawnLoc += FVector(repeteDistance, 0.0f, 0.0f);
+			ADamagePillar* pillar = GetWorld()->SpawnActor<ADamagePillar>(pillarFactory, spawnLoc, GetActorRotation(), params);
+			pillar->SetActorScale3D(GetActorScale3D());
+		}
+	}
+
 }
 
 // Called every frame
