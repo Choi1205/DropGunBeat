@@ -273,7 +273,7 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 					{
 						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(1.0f));
 
-						if (enemy->Hit(false) && !bshield)
+						if (enemy->Hit(false, 1) && !bshield)
 						{
 							shieldrecovery();
 						}
@@ -364,7 +364,7 @@ void AGunPlayer::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	enemy = Cast<ABaseEnemy>(OtherActor);
 	if (OtherActor->IsA<ABaseEnemy>())
 	{
-		if (enemy->Hit(true) && bshield == false)
+		if (enemy->Hit(true, 1) && bshield == false)
 		{
 			shieldrecovery();
 		}

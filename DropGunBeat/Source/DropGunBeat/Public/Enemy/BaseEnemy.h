@@ -124,7 +124,7 @@ public:
 	void Shoot();
 	//void Die();
 
-	bool Hit(bool bIsPunch);
+	bool Hit(bool bIsPunch, int32 multiply);
 
 	EEnemyState GetEnemyState();
 
