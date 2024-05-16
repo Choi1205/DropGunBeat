@@ -8,11 +8,18 @@
 
 void UshieldWidget::startShield()
 {
-
+	//½¯µå
 	shieldPS->SetVisibility(ESlateVisibility::Visible);
 	bshieldPS->SetVisibility(ESlateVisibility::Hidden);
 	CurrentShield->SetVisibility(ESlateVisibility::Hidden);
 
+	// ¹èÀ²
+	NumberRad->SetVisibility(ESlateVisibility::Visible);
+	XRad->SetVisibility(ESlateVisibility::Visible);
+	NumberX->SetVisibility(ESlateVisibility::Visible);
+	X->SetVisibility(ESlateVisibility::Visible);
+
+	reX = 1;
 }
 
 void UshieldWidget::hitShield()
@@ -22,6 +29,8 @@ void UshieldWidget::hitShield()
 	CurrentShield->SetVisibility(ESlateVisibility::Visible);
 	CurrentShield->SetText(FText::FromString("4"));
 
+	NumberX->SetText(FText::FromString("1"));
+	reX = 1;
 }
 
 void UshieldWidget::produceShield()
@@ -30,6 +39,8 @@ void UshieldWidget::produceShield()
 	bshieldPS->SetVisibility(ESlateVisibility::Hidden);
 	CurrentShield->SetVisibility(ESlateVisibility::Hidden);
 }
+
+
 
 void UshieldWidget::removeShield(int32 ShieldCount)
 {
@@ -40,4 +51,12 @@ void UshieldWidget::removeShield(int32 ShieldCount)
 	FText ShieldText = FText::FromString(ShieldString);
 	//UE_LOG(LogTemp, Warning, TEXT("remain"));
 	CurrentShield->SetText(ShieldText);
+}
+
+void UshieldWidget::CurrentX(int32 _CurrentX)
+{
+	reX = FMath::Clamp(reX + _CurrentX, 1, 8);
+	FString reXString = FString::Printf(TEXT(" % d"), reX);
+	FText reXText = FText::FromString(reXString);
+	NumberX->SetText(reXText);
 }

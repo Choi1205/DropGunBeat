@@ -173,14 +173,14 @@ void AGunPlayer::Tick(float DeltaTime)
 		}
 
 		moveTime += DeltaTime;
-		UE_LOG(LogTemp, Warning, TEXT("%f / %f"), moveTime, endTime);
+		//UE_LOG(LogTemp, Warning, TEXT("%f / %f"), moveTime, endTime);
 		SetActorLocation(FMath::Lerp(startLoc, targetLoc, (moveTime/endTime)), true);
 	}
 	
 	if (FVector::Dist(VRCamera->GetComponentLocation(), MeshRight->GetComponentLocation()) > 70)
 	{
 		ONReroad();
-		UE_LOG(LogTemp, Warning, TEXT("reload"));
+		//UE_LOG(LogTemp, Warning, TEXT("reload"));
 	}
 
 	// 항상 위젯이 날 바라보도록
@@ -211,15 +211,16 @@ void AGunPlayer::SetStartLoc()
 	if (gi->bIsPlaingBBKK){
 		targetLoc = GetActorLocation() + FVector(31400.0f, 0.0f, 0.0f);
 		endTime = 136.0f;
-		UE_LOG(LogTemp, Warning, TEXT("%f"), endTime);
+		//UE_LOG(LogTemp, Warning, TEXT("%f"), endTime);
 	}
 	else {
 		targetLoc = GetActorLocation() + FVector(31400.0f, 0.0f, 0.0f);
 		endTime = 130.0f;
-		UE_LOG(LogTemp, Warning, TEXT("%f"), endTime);
+		//UE_LOG(LogTemp, Warning, TEXT("%f"), endTime);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("start : %f, %f, %f"), startLoc.X, startLoc.Y, startLoc.Z);
-	UE_LOG(LogTemp, Warning, TEXT("end : %f, %f, %f"), targetLoc.X, targetLoc.Y, targetLoc.Z);
+	//UE_LOG(LogTemp, Warning, TEXT("start : %f, %f, %f"), startLoc.X, startLoc.Y, startLoc.Z);
+	//UE_LOG(LogTemp, Warning, TEXT("end : %f, %f, %f"), targetLoc.X, targetLoc.Y, targetLoc.Z);
+
 }
 
 // 총알 발사 인풋
@@ -273,9 +274,16 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 					{
 						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(1.0f));
 
-						if (enemy->Hit(false, 1) && !bshield)
+						bool bIsEnemyDead = enemy->Hit(false, CurrentXEnemy);
+						if (bIsEnemyDead)
 						{
-							shieldrecovery();
+							CurrentXNumber++;
+							SetCurrentXNumber();
+							UE_LOG(LogTemp , Warning, TEXT("1"));
+							if(!bshield)
+							{
+								shieldrecovery();
+							}
 						}
 						return;
 					}
@@ -364,10 +372,13 @@ void AGunPlayer::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	enemy = Cast<ABaseEnemy>(OtherActor);
 	if (OtherActor->IsA<ABaseEnemy>())
 	{
-		if (enemy->Hit(true, 1) && bshield == false)
+		if (enemy->Hit(true, CurrentXEnemy) && bshield == false)
 		{
 			shieldrecovery();
 		}
+		CurrentXNumber++;
+		SetCurrentXNumber();
+		UE_LOG(LogTemp, Warning, TEXT("2"));
 	}
 }
 
@@ -377,6 +388,9 @@ void AGunPlayer::OnDamaged()
 	pc = GetController<APlayerController>();
 	if (bshield == true)
 	{
+		CurrentXEnemy = 1;
+		CurrentXNumber = 0;
+		shieldWidget->CurrentX(0);
 		// 페이드 인 효과를 준다.
 		if (pc != nullptr)
 		{
@@ -419,6 +433,28 @@ void AGunPlayer::shieldrecovery()
 		}
 }
 
+void AGunPlayer::SetCurrentXNumber()
+{
+	// 점수
+	if (CurrentXNumber == 2)
+	{
+		shieldWidget->CurrentX(1);
+		CurrentXEnemy += 1;
+		UE_LOG(LogTemp, Warning, TEXT("Num1"));
+	}
+	else if (CurrentXNumber == 6)
+	{
+		shieldWidget->CurrentX(2);
+		CurrentXEnemy += 2;
+		UE_LOG(LogTemp, Warning, TEXT("Num2"));
+	}
+	else if (CurrentXNumber == 14)
+	{
+		shieldWidget->CurrentX(4);
+		CurrentXNumber += 4;
+		UE_LOG(LogTemp, Warning, TEXT("Num3"));
+	}
+}
 //FRotator AGunPlayer::BillboardWidgetComponent(AActor* camActor)
 //{
 //		if (VRCamera != nullptr)

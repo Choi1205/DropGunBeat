@@ -130,6 +130,14 @@ public:
 	void SetStartLoc();
 
 	class UmusicGameInstance* gi = nullptr;
+	
+	// πË¿≤
+	UPROPERTY()
+	int32 CurrentXNumber = 0;
+
+	int32 CurrentXEnemy = 1;
+
+	void SetCurrentXNumber();
 
 protected:
 	virtual void BeginPlay() override;
