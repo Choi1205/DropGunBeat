@@ -18,6 +18,7 @@ public:
 
 	UPROPERTY(EditAnywhere ,Category = "MySettings", meta = (BindWidget))
 	class UTextBlock* CurrentBullet;
+
 	
 	UPROPERTY()
 	class AGunPlayer* player;
@@ -26,8 +27,8 @@ public:
 
 	void remainBullet(int32 bulletCount);
 
+
 private:
 	int32 bullet = 15;
-
 
 };

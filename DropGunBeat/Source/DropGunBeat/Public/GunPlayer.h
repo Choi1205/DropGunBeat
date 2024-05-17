@@ -37,15 +37,15 @@ public:
 	  UPROPERTY(EditDefaultsOnly)
 	 class UMotionControllerComponent* MotionRight;
 
-	 UPROPERTY(EditDefaultsOnly)
-	class UMotionControllerComponent* RightAim; 
-
 	// 왼손, 오른손 스켈레탈 메시를 만들고 모션컨트롤러에 붙이고싶다.
 	UPROPERTY(EditDefaultsOnly)
 	class USkeletalMeshComponent* MeshLeft;
 
 	UPROPERTY(EditDefaultsOnly)
 	class USkeletalMeshComponent* MeshRight;
+
+	UPROPERTY(EditDefaultsOnly)
+	class USceneComponent* leftScene;
 
 	UPROPERTY(EditDefaultsOnly)
 	class USceneComponent* rightScene;
@@ -74,6 +74,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = VR)
 	class UInputAction* IA_Fire;
 
+	UPROPERTY(EditDefaultsOnly, Category = VR)
+	class UInputAction* IA_LeftFire;
+
 	/*UPROPERTY(EditDefaultsOnly, Category = VR)
 	class UInputAction* IA_Reroad;*/
 
@@ -83,16 +86,24 @@ public:
 	UPROPERTY(VisibleAnywhere, Category="MySettings|Components")
 	class UWidgetComponent* PlayerGunWidgetComp;
 
+	UPROPERTY(VisibleAnywhere, Category="MySettings|Components")
+	class UWidgetComponent* PlayerGunWidgetLeftComp;
+
 	UPROPERTY(EditAnywhere, Category = "Widget")
 	class UPlayerWidget* PlayerWidget;
+	
+	UPROPERTY(EditAnywhere, Category = "Widget")
+	class UPlayerWidget* PlayerLeftWidget;
 
 	UPROPERTY(VisibleAnywhere, Category="MySettings|Components")
 	class UWidgetComponent* PlayerShieldWidgetComp;
 
+	void ONLeftFire(const FInputActionValue& value);
 	void ONFire(const FInputActionValue& value);
+
 	void ONTurn(const FInputActionValue& value);
 	void ONReroad();
-
+	void ONLeftReroad();
 	//void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	// 오버랩
@@ -115,6 +126,9 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bStart = false;
 
+	// 왼쪽 활성화
+	bool bLeft;
+
 	//캐스팅 완료 판단용 변수
 	UPROPERTY()
 	bool bIsCastingDone = false;
@@ -125,6 +139,10 @@ public:
 	// 탄창
 	UPROPERTY()
 	int32 bulletFactory = 0;
+
+
+	UPROPERTY()
+	int32 leftbulletFactory = 0;
 	
 	UFUNCTION(BlueprintCallable)
 	void SetStartLoc();
@@ -189,6 +207,9 @@ protected:
 
 	UPROPERTY()
 	class AgameStartActor* startActor;
+
+	UPROPERTY()
+	class ACustomizeActor* WeaponActor;
 
 	UPROPERTY()
 	class AMusicActor* musicActor;

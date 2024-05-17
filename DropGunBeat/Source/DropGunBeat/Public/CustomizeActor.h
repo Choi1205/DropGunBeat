@@ -24,6 +24,15 @@ public:
 	UPROPERTY(VisibleAnywhere, Category="MySettings|Components")
 	class UWidgetComponent* RobeCustomComponent;
 
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* OneboxComp;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* dobleboxComp;
+
+	class AGunPlayer* player;
+
+
 protected:
 	virtual void BeginPlay() override;
 

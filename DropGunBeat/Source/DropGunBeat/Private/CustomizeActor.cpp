@@ -4,6 +4,8 @@
 #include "CustomizeActor.h"
 #include "CustomizeWidget.h"
 #include <../../../../../../../Source/Runtime/UMG/Public/Components/WidgetComponent.h>
+#include <../../../../../../../Source/Runtime/Engine/Classes/Components/BoxComponent.h>
+
 
 
 ACustomizeActor::ACustomizeActor()
@@ -15,6 +17,12 @@ ACustomizeActor::ACustomizeActor()
 
 	RobeCustomComponent = CreateDefaultSubobject <UWidgetComponent>(TEXT("Player Gun Component"));
 	RobeCustomComponent->SetupAttachment(sceneComp);
+
+	OneboxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("OneboxComp"));
+	OneboxComp->SetupAttachment(RobeCustomComponent);
+
+	dobleboxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("dobleboxComp"));
+	dobleboxComp -> SetupAttachment(RobeCustomComponent);
 }
 
 
@@ -30,6 +38,8 @@ void ACustomizeActor::BeginPlay()
 void ACustomizeActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
 
 }
 

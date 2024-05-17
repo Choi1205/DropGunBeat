@@ -12,6 +12,7 @@ void UPlayerWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	CurrentBullet->SetText(FText::FromString("15"));
+
 }
 
 void UPlayerWidget::remainBullet(int32 bulletCount)
@@ -24,6 +25,9 @@ void UPlayerWidget::remainBullet(int32 bulletCount)
 	//UE_LOG(LogTemp, Warning, TEXT("remain"));
 	CurrentBullet->SetText(bulletText);
 }
+
+
+
 
 
 
