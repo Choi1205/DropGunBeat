@@ -31,6 +31,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Public/EngineUtils.h>
 #include "musicGameInstance.h"
 #include "CustomizeActor.h"
+#include "Components/SceneComponent.h"
 
 
 
@@ -39,9 +40,13 @@ AGunPlayer::AGunPlayer()
  
 	PrimaryActorTick.bCanEverTick = true;
 
-	// VR 카메라 컴포넌트를 생성하고 루트에 붙이고싶다.
+	//카메라 회전용 롤 컴포넌트를 생성하고, 루트(캡슐)에 붙인다
+	rollComp = CreateDefaultSubobject<USceneComponent>(TEXT("RollComp"));
+	rollComp->SetupAttachment(RootComponent);
+
+	// VR 카메라 컴포넌트를 생성하고 롤 컴포넌트에 붙임
 	VRCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("VRCamera"));
-	VRCamera->SetupAttachment(RootComponent);
+	VRCamera->SetupAttachment(rollComp);
 
 	// 박스 컴포넌트를 카메라에 붙여서 벽에 닿거나 총알에 맞으면 데미지를 받는다.
 	boxcomp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
@@ -51,12 +56,12 @@ AGunPlayer::AGunPlayer()
 	
 	MotionLeft = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MotionLeft"));
 	MotionLeft->SetTrackingMotionSource(TEXT("Left"));
-	MotionLeft->SetupAttachment(RootComponent);
+	MotionLeft->SetupAttachment(rollComp);
 	
 
 	MotionRight = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("MotionRight"));
 	MotionRight->SetTrackingMotionSource(TEXT("Right"));
-	MotionRight->SetupAttachment(RootComponent);
+	MotionRight->SetupAttachment(rollComp);
 
 	// 왼손, 오른손 스켈레탈메시컴포넌트를 만들어서 모션컨트롤러에 붙이고싶다.
 	
@@ -138,14 +143,7 @@ void AGunPlayer::BeginPlay()
 	shieldWidget = Cast<UshieldWidget>(PlayerShieldWidgetComp->GetWidget());
 	gi = Cast<UmusicGameInstance>(GetGameInstance());
 
-	if (gi->bIsWeapon)
-	{
-		bLeft = true;
-	}
-	else
-	{
-		bLeft = false;
-	}
+	LeftGunToggle(gi->bIsWeapon);
 
 	SetStartLoc();
 
@@ -217,21 +215,16 @@ void AGunPlayer::Tick(float DeltaTime)
 	
 	if (bLeft)
 	{
-		MotionLeft->SetVisibility(true, true);
 		if (FVector::Dist(VRCamera->GetComponentLocation(), MeshLeft->GetComponentLocation()) > 70)
 		{
 			ONLeftReroad();
 		}
 	}
-	if (!bLeft)
-	{
-		MotionLeft->SetVisibility(false, true);
-	}
 
-		if (FVector::Dist(VRCamera->GetComponentLocation(), MeshRight->GetComponentLocation()) > 70)
-		{
-			ONReroad();
-		}
+	if (FVector::Dist(VRCamera->GetComponentLocation(), MeshRight->GetComponentLocation()) > 70)
+	{
+		ONReroad();
+	}
 	
 	// 항상 위젯이 날 바라보도록
 	//PlayerGunWidgetComp->SetWorldRotation(BillboardWidgetComponent(this));
@@ -280,23 +273,23 @@ void AGunPlayer::ONLeftFire(const FInputActionValue& value)
 {
 	if (bLeft)
 	{ 
-	FVector StartFire = MeshLeft->GetComponentLocation();
+		FVector StartFire = MeshLeft->GetComponentLocation();
 
-	if (leftbulletFactory > 0)
-	{
-		leftbulletFactory -= 1;
-		if (PlayerLeftWidget != nullptr)
+		if (leftbulletFactory > 0)
 		{
-			PlayerLeftWidget->remainBullet(-1);
-		}
-		if (NI_Fire != nullptr)
-		{
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NI_Fire, leftScene->GetComponentLocation(), leftScene->GetComponentRotation());
-		}
+			leftbulletFactory -= 1;
+			if (PlayerLeftWidget != nullptr)
+			{
+				PlayerLeftWidget->remainBullet(-1);
+			}
+			if (NI_Fire != nullptr)
+			{
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NI_Fire, leftScene->GetComponentLocation(), leftScene->GetComponentRotation());
+			}
 
-		bool isPressed = value.Get<bool>(); 
-		if (isPressed)
-		{
+			//bool isPressed = value.Get<bool>(); 
+			//if (isPressed)
+			//{
 			FHitResult hitInfo;
 			FVector start = leftScene->GetComponentLocation();
 			FVector end = start + leftScene->GetForwardVector() * 100000;
@@ -324,7 +317,6 @@ void AGunPlayer::ONLeftFire(const FInputActionValue& value)
 				if (enemy != nullptr)
 				{
 					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(1.0f));
-
 					bool bIsEnemyDead = enemy->Hit(false, CurrentXEnemy);
 					if (bIsEnemyDead)
 					{
@@ -338,12 +330,10 @@ void AGunPlayer::ONLeftFire(const FInputActionValue& value)
 					}
 					return;
 				}
-
 				else if (widgetLevel != nullptr)
 				{
 					widgetLevel->MoveLevel();
 				}
-
 				else if (startActor != nullptr)
 				{
 					if (startActor->bPlayStart)
@@ -352,9 +342,8 @@ void AGunPlayer::ONLeftFire(const FInputActionValue& value)
 					}
 				}
 			}
-
+			//}
 		}
-	}
 	}
 }
 
@@ -377,89 +366,79 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 		}
 
 		//UE_LOG(LogTemp, Warning, TEXT("2222222"));
-		bool isPressed = value.Get<bool>();   // .이 캐스트의 의미 , 개발자가 어떻게 만들지 예측할 수 없어서 이런식으로 작성
-		if (isPressed)
+		//bool isPressed = value.Get<bool>();   // .이 캐스트의 의미 , 개발자가 어떻게 만들지 예측할 수 없어서 이런식으로 작성
+		//if (isPressed)//Started에서 호출되니까 IsPressed는 반드시 true이므로 무의미함
+		//{
+		FHitResult hitInfo;
+		FVector start = rightScene->GetComponentLocation();
+		FVector end = start + rightScene->GetForwardVector() * 100000;
+		FCollisionQueryParams params;
+		params.AddIgnoredActor(this);  // 액터는 나 자신,
+		params.AddIgnoredComponent(MeshRight); // 혹시 내 매쉬에 닿을 수 있으므로
+
+		FQuat startRot = FRotator(0, 0, 0).Quaternion();
+
+		// Sphere Trace
+		bool bResult = GetWorld()->SweepSingleByChannel(hitInfo, start, end, startRot, ECC_Visibility, FCollisionShape::MakeSphere(60), params);
+		//DrawDebugBoxTraceSingle(GetWorld(), start, end, FVector(30), FRotator(0, 0, 0), EDrawDebugTrace::ForDuration, true, hitInfo, FLinearColor::Green, FLinearColor::Red, 2.0f);
+
+		// Sound
+		if (fireSound != nullptr)
 		{
-			FHitResult hitInfo;
-			FVector start = rightScene->GetComponentLocation();
-			FVector end = start + rightScene->GetForwardVector() * 100000;
-			FCollisionQueryParams params;
-			params.AddIgnoredActor(this);  // 액터는 나 자신,
-			params.AddIgnoredComponent(MeshRight); // 혹시 내 매쉬에 닿을 수 있으므로
+			UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
+		}
 
-			FQuat startRot = FRotator(0, 0, 0).Quaternion();
+		// 만약 부딪힌것이 있다면
+		if (bResult)
+		{
+			enemy = Cast<ABaseEnemy>(hitInfo.GetActor());
+			widgetLevel = Cast<AMainRobeUIActor>(hitInfo.GetActor());
+			startActor = Cast<AgameStartActor>(hitInfo.GetActor());
+			WeaponActor = Cast<ACustomizeActor>(hitInfo.GetActor());
 
-			// Sphere Trace
-			bool bResult = GetWorld()->SweepSingleByChannel(hitInfo, start, end, startRot, ECC_Visibility, FCollisionShape::MakeSphere(60), params);
-			//DrawDebugBoxTraceSingle(GetWorld(), start, end, FVector(30), FRotator(0, 0, 0), EDrawDebugTrace::ForDuration, true, hitInfo, FLinearColor::Green, FLinearColor::Red, 2.0f);
-
-			// Sound
-			if (fireSound != nullptr)
+			if (enemy != nullptr)
 			{
-				UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(1.0f));
+
+				bool bIsEnemyDead = enemy->Hit(false, CurrentXEnemy);
+				if (bIsEnemyDead)
+				{
+					CurrentXNumber++;
+					SetCurrentXNumber();
+					UE_LOG(LogTemp , Warning, TEXT("1"));
+					if(!bshield)
+					{
+						shieldrecovery();
+					}
+				}
+				return;
 			}
-
-			// 만약 부딪힌것이 있다면
-			if (bResult)
+			else if (widgetLevel != nullptr)
 			{
-				enemy = Cast<ABaseEnemy>(hitInfo.GetActor());
-				widgetLevel = Cast<AMainRobeUIActor>(hitInfo.GetActor());
-				startActor = Cast<AgameStartActor>(hitInfo.GetActor());
-				WeaponActor = Cast<ACustomizeActor>(hitInfo.GetActor());
-
-					if (enemy != nullptr)
-					{
-						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(1.0f));
-
-						bool bIsEnemyDead = enemy->Hit(false, CurrentXEnemy);
-						if (bIsEnemyDead)
-						{
-							CurrentXNumber++;
-							SetCurrentXNumber();
-							UE_LOG(LogTemp , Warning, TEXT("1"));
-							if(!bshield)
-							{
-								shieldrecovery();
-							}
-						}
-						return;
-					}
-
-					else if (widgetLevel != nullptr)
-					{
-						widgetLevel->MoveLevel();
-					}
-
-					else if (startActor != nullptr)
-					{
-						if (startActor->bPlayStart)
-						{
-							UGameplayStatics::OpenLevel(this, "startMap");
-						}
-					}
-
-					else if (WeaponActor != nullptr)
-					{
-
-						
-						if (hitInfo.GetComponent() == WeaponActor->OneboxComp)
-						{
-							UE_LOG(LogTemp,Warning,TEXT("leftflasse"));
-							bLeft = false;
-							gi->bIsWeapon = false;
-						}
-						else if (hitInfo.GetComponent() == WeaponActor->dobleboxComp)
-						{
-							UE_LOG(LogTemp, Warning, TEXT("true"));
-							bLeft = true;
-							leftbulletFactory = 15;
-							PlayerLeftWidget->remainBullet(15);
-							gi->bIsWeapon = true;
-							
-						}
-					}
+				widgetLevel->MoveLevel();
+			}
+			else if (startActor != nullptr)
+			{
+				if (startActor->bPlayStart)
+				{
+					UGameplayStatics::OpenLevel(this, "startMap");
+				}
+			}
+			else if (WeaponActor != nullptr)
+			{
+				if (hitInfo.GetComponent() == WeaponActor->OneboxComp)
+				{
+					UE_LOG(LogTemp,Warning,TEXT("leftflasse"));
+					LeftGunToggle(false);
+				}
+				else if (hitInfo.GetComponent() == WeaponActor->dobleboxComp)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("true"));
+					LeftGunToggle(true);
+				}
 			}
 		}
+		//}
 	}
 }
 
@@ -531,20 +510,20 @@ void AGunPlayer::OnDamaged()
 
 void AGunPlayer::shieldrecovery()
 {
-		shieldWidget->removeShield(-1);
-		recovery += 1;
-		if (recovery == 4)
+	shieldWidget->removeShield(-1);
+	recovery += 1;
+	if (recovery == 4)
+	{
+		if (shieldWidget != nullptr)
 		{
-			if (shieldWidget != nullptr)
-			{
-			 // 회복 페이드아웃 효과를 준다.
-				pc->PlayerCameraManager->StartCameraFade(1, 0, 1.0f, FLinearColor::Green);
-				shieldWidget->produceShield();
-				bshield = true;
-				shieldWidget->removeShield(4);
-				recovery = 0;
-			}
+		 // 회복 페이드아웃 효과를 준다.
+			pc->PlayerCameraManager->StartCameraFade(1, 0, 1.0f, FLinearColor::Green);
+			shieldWidget->produceShield();
+			bshield = true;
+			shieldWidget->removeShield(4);
+			recovery = 0;
 		}
+	}
 }
 
 void AGunPlayer::SetCurrentXNumber()
@@ -569,6 +548,25 @@ void AGunPlayer::SetCurrentXNumber()
 		UE_LOG(LogTemp, Warning, TEXT("Num3"));
 	}
 }
+
+//왼손총 최적화
+void AGunPlayer::LeftGunToggle(bool value)
+{
+	if (value) {
+		bLeft = true;
+		gi->bIsWeapon = true;
+		MotionLeft->SetVisibility(true, true);
+		leftbulletFactory = 15;
+		PlayerLeftWidget->remainBullet(15);
+	}
+	else {
+		bLeft = false;
+		gi->bIsWeapon = false;
+		MotionLeft->SetVisibility(false, true);
+
+	}
+}
+
 //FRotator AGunPlayer::BillboardWidgetComponent(AActor* camActor)
 //{
 //		if (VRCamera != nullptr)

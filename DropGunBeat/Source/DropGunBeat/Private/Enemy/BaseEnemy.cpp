@@ -217,8 +217,8 @@ bool ABaseEnemy::Hit(bool bIsPunch, int32 multiply)
 	scoreWidgetComp->SetWorldRotation(showDir.Rotation());
 	if (bIsPunch) {
 		currentHP = 0;
-		gi->currentScore += 600;
-		scoreWidget->ShowScore(600);
+		gi->currentScore += 600 * multiply;
+		scoreWidget->ShowScore(600 * multiply);
 	}
 	else {
 		float accuracy = 1.0f;
@@ -231,16 +231,16 @@ bool ABaseEnemy::Hit(bool bIsPunch, int32 multiply)
 
 			if (gi != nullptr && scoreWidget != nullptr) {
 				if (accuracy < 0.2) {
-					gi->currentScore += 400;
-					scoreWidget->ShowScore(400);
+					gi->currentScore += 400 * multiply;
+					scoreWidget->ShowScore(400 * multiply);
 				}
 				else if (accuracy < 0.4) {
-					gi->currentScore += 300;
-					scoreWidget->ShowScore(300);
+					gi->currentScore += 300 * multiply;
+					scoreWidget->ShowScore(300 * multiply);
 				}
 				else {
-					gi->currentScore += 200;
-					scoreWidget->ShowScore(200);
+					gi->currentScore += 200 * multiply;
+					scoreWidget->ShowScore(200 * multiply);
 				}
 			}
 		}

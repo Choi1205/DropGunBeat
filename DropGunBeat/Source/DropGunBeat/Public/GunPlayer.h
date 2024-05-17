@@ -26,6 +26,9 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite) // EditDefaultsOnly - 읽기전용 
+	class USceneComponent* rollComp;
+
 		// VR카메라 컴포넌트를 생성하고 루트에 붙이고싶다.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite) // EditDefaultsOnly - 읽기전용 
 	class UCameraComponent* VRCamera;  // class - 전방선언 약식
@@ -63,7 +66,7 @@ public:
 	float PlayerMovespeed = 0.5f;
 
 	// 사운드
-	UPROPERTY(EditAnywhere, Category = "MySettings") // 사운드
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MySettings") // 사운드
 	class USoundBase* fireSound;
 
 
@@ -117,7 +120,7 @@ public:
 	void shieldrecovery();
 
 	// 나이아가라
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UNiagaraSystem* NI_Fire;
 
 	bool bshield = true; // 쉴드
@@ -133,7 +136,7 @@ public:
 	UPROPERTY()
 	bool bIsCastingDone = false;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UParticleSystem* FX_FireHit;
 	
 	// 탄창
@@ -213,6 +216,8 @@ protected:
 
 	UPROPERTY()
 	class AMusicActor* musicActor;
+
+	void LeftGunToggle(bool value);
 
 private:
 	// 위젯이 플레이어를 바라보게 
