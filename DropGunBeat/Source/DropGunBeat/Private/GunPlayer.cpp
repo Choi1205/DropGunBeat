@@ -16,7 +16,7 @@
 #include <../../../../../../../Source/Runtime/Core/Public/Delegates/Delegate.h>
 #include <../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/BoxComponent.h>
-#include <../../../../../../../Source/Runtime/Engine/Classes/Components/SphereComponent.h>
+#include <../../../../../../../Source/Runtime/Engine/Classes/Components/SphereComponent.h> 
 #include "PlayerWidget.h"
 #include "musicGameModeBase.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/GameModeBase.h>
@@ -25,7 +25,6 @@
 #include <../../../../../../../Source/Runtime/Engine/Public/KismetTraceUtils.h>
 #include "MainRobeUIActor.h"
 #include "gameStartActor.h"
-#include "bShieldWidget.h"
 #include "shieldWidget.h"
 #include "Enemy/MusicActor.h"
 #include <../../../../../../../Source/Runtime/Engine/Public/EngineUtils.h>
@@ -546,19 +545,19 @@ void AGunPlayer::SetCurrentXNumber()
 	if (CurrentXNumber == 2)
 	{
 		shieldWidget->CurrentX(1);
-		CurrentXEnemy = 1;
+		CurrentXEnemy += 1;
 		UE_LOG(LogTemp, Warning, TEXT("Num1"));
 	}
 	else if (CurrentXNumber == 6)
 	{
 		shieldWidget->CurrentX(2);
-		CurrentXEnemy = 2;
+		CurrentXEnemy += 2;
 		UE_LOG(LogTemp, Warning, TEXT("Num2"));
 	}
 	else if (CurrentXNumber == 14)
 	{
 		shieldWidget->CurrentX(4);
-		CurrentXEnemy = 4;
+		CurrentXEnemy += 4;
 		UE_LOG(LogTemp, Warning, TEXT("Num3"));
 	}
 }
