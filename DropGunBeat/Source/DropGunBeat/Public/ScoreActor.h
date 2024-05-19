@@ -24,6 +24,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category="Widget")
 	class UWidgetComponent* ScoreUIComponent;
 	
+	class UmusicGameInstance* gi = nullptr;
 
 protected:
 	virtual void BeginPlay() override;

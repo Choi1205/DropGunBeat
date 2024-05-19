@@ -6,6 +6,7 @@
 #include <../../../../../../../Source/Runtime/UMG/Public/Components/WidgetComponent.h>
 
 
+
 AScoreActor::AScoreActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -25,6 +26,7 @@ void AScoreActor::BeginPlay()
 	Super::BeginPlay();
 
 	ScoreWidget = Cast<UScoreWidget>(ScoreUIComponent->GetWidget());
+	
 
 }
 

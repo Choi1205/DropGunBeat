@@ -21,10 +21,22 @@ public:
 	UPROPERTY(EditAnywhere ,Category = "MySettings", meta = (BindWidget))
 	class UTextBlock* BBKKBastScore;
 
+	UPROPERTY(VisibleAnywhere, Category = "MySettings", meta = (BindWidget))
+	class UImage* BBKKimage;
+
+	UPROPERTY(EditAnywhere, Category = "MySettings", meta = (BindWidget))
+	class UTextBlock* NightBastScore;
+
+	UPROPERTY(VisibleAnywhere, Category = "MySettings", meta = (BindWidget))
+	class UImage* Nightimage;
 
 	void SetScore();
+	// bbkk
 	void BBKKScore();
-	void SaveBestScore();
+	void SaveBBKKBestScore();
+	// night
+	void NightScore();
+	void SaveNightBestScore();
 
 	UPROPERTY()
 	class AGunPlayer* player;
@@ -34,6 +46,6 @@ public:
 private:
 	int32 bestBBKKPoint = 0;
 
-	int32 bestNightPoint = 0;
+	int32 bestNightScore = 0;
 
 };

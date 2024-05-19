@@ -488,6 +488,8 @@ void AGunPlayer::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 void AGunPlayer::OnDamaged()
 {
 	pc = GetController<APlayerController>();
+
+	
 	if (bshield == true)
 	{
 		CurrentXEnemy = 1;
@@ -505,9 +507,12 @@ void AGunPlayer::OnDamaged()
 		if (shieldWidget != nullptr)
 		{
 			shieldWidget->hitShield();
+			if (hitSound != nullptr)
+			{
+				UGameplayStatics::PlaySound2D(GetWorld(), hitSound);
+			}
 			bshield = false;
 		}
-		
 	}
 	
 	else if (bshield == false)

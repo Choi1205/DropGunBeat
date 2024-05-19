@@ -69,6 +69,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MySettings") // 사운드
 	class USoundBase* fireSound;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MySettings") // 사운드
+	class USoundBase* hitSound;
+
 
 	// 인풋
 	UPROPERTY(EditDefaultsOnly, Category = VR)

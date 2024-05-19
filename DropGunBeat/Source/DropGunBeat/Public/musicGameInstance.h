@@ -23,7 +23,7 @@ public:
 
 	int32 bestBBKKScore;
 
-	int32 bestNightScore = 0;
+	int32 bestNightScore;
 
 	bool bIsWeapon = false;
 };
