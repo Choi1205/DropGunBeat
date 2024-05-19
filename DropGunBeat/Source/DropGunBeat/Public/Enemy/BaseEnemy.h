@@ -1,4 +1,3 @@
-
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
@@ -14,6 +13,13 @@ enum class EEnemyState : uint8 {
 	AIM,
 	SHOOT,
 	DIE
+};
+
+UENUM(BlueprintType)
+enum class EAccuracy : uint8 {
+	PERPECT,
+	GOOD,
+	BAD
 };
 
 UCLASS()

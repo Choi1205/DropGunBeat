@@ -7,6 +7,13 @@
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h>
 #include "GunPlayer.generated.h"
 
+UENUM(BlueprintType)
+enum class EPlayerState : uint8 {
+	IDLE,
+	MOVE,
+	DIE
+};
+
 UCLASS()
 class DROPGUNBEAT_API AGunPlayer : public ACharacter
 {
@@ -55,8 +62,8 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UBoxComponent* boxcomp;
 
-	//UPROPERTY(EditAnywhere, Category = Speed)
-	//float PlayerMovespeed = 0.5f;
+	UPROPERTY(EditAnywhere, Category = Speed)
+	float PlayerMovespeed = 0.5f;
 
 	// »ç¿îµå
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MySettings") // »ç¿îµå
@@ -120,7 +127,7 @@ public:
 	class UNiagaraSystem* NI_Fire;
 
 	bool bshield = true; // ½¯µå
-	//bool bGunbullet = true; // ÃÑ¾Ë½î¸é ´Þµµ·Ï
+	bool bGunbullet = true; // ÃÑ¾Ë½î¸é ´Þµµ·Ï
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bStart = false;
@@ -176,8 +183,8 @@ protected:
 	UPROPERTY()
 	float moveTime = 0.0f;
 
-	//UPROPERTY()
-	//int32 Score =0;
+	UPROPERTY()
+	int32 Score =0;
 
 	// ½¯µåÀç»ý
 	UPROPERTY()
@@ -189,20 +196,20 @@ protected:
 	UPROPERTY()
 	FVector startLoc;
 
-	//UPROPERTY()
-	//FVector targetPos;
+	UPROPERTY()
+	FVector targetPos;
 
-	//UPROPERTY(EditAnywhere, Category = "mysettings")
-	//TSubclassOf<UDamageType> DamageType;
+	UPROPERTY(EditAnywhere, Category = "mysettings")
+	TSubclassOf<UDamageType> DamageType;
 	
-	//UPROPERTY()
-	//class AGunPlayer* player;
+	UPROPERTY()
+	class AGunPlayer* player;
 
 	UPROPERTY()
 	class ABaseEnemy* enemy;
 
-	//UPROPERTY()
-	//class ABulletActor* bullet;
+	UPROPERTY()
+	class ABulletActor* bullet;
 
 	UPROPERTY()
 	class AMainRobeUIActor* widgetLevel;
@@ -210,8 +217,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Widget")
 	class UshieldWidget* shieldWidget;
 
-	//UPROPERTY(EditAnywhere, Category = "Widget")
-	//class UbShieldWidget* bshieldWidget;
+	UPROPERTY(EditAnywhere, Category = "Widget")
+	class UbShieldWidget* bshieldWidget;
 
 	UPROPERTY()
 	class AgameStartActor* startActor;
