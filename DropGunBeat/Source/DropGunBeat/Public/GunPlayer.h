@@ -136,8 +136,17 @@ public:
 	UPROPERTY()
 	bool bIsCastingDone = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	class UParticleSystem* FX_FireHit;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	//class UParticleSystem* FX_FireHit;
+	//사격 명중 이펙트를 액터로 쓴다.
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class ABulletFXActor> bulletFX;
+
+	TArray<ABulletFXActor*> FXarray;
+
+	int32 FXAddress = 0;
+
+	void PlayFX(FVector playLoc);
 	
 	// 탄창
 	UPROPERTY()

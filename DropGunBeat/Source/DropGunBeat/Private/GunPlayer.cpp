@@ -32,6 +32,7 @@
 #include "musicGameInstance.h"
 #include "CustomizeActor.h"
 #include "Components/SceneComponent.h"
+#include "BulletFXActor.h"
 
 
 
@@ -163,8 +164,15 @@ void AGunPlayer::BeginPlay()
 		endTime = 1.0f;
 	}
 	
-		leftbulletFactory = 15;
-		bulletFactory = 15;
+	leftbulletFactory = 15;
+	bulletFactory = 15;
+
+	//사격 이펙트 액터를 생성하고 배열에 넣어놓는다.
+	FXarray.Empty();
+	FActorSpawnParameters params;
+	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	FXarray.Add(GetWorld()->SpawnActor<ABulletFXActor>(bulletFX, FVector::ZeroVector, FRotator::ZeroRotator, params));
+	FXarray.Add(GetWorld()->SpawnActor<ABulletFXActor>(bulletFX, FVector::ZeroVector, FRotator::ZeroRotator, params));
 
 	// 인풋
 	pc = Cast<APlayerController>(Controller);
@@ -316,7 +324,8 @@ void AGunPlayer::ONLeftFire(const FInputActionValue& value)
 				startActor = Cast<AgameStartActor>(hitInfo.GetActor());
 				if (enemy != nullptr)
 				{
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(1.0f));
+					//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(1.0f));
+					PlayFX(hitInfo.ImpactPoint);
 					bool bIsEnemyDead = enemy->Hit(false, CurrentXEnemy);
 					if (bIsEnemyDead)
 					{
@@ -398,8 +407,8 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 
 			if (enemy != nullptr)
 			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(1.0f));
-
+				//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FX_FireHit, hitInfo.ImpactPoint, FRotator::ZeroRotator, FVector(1.0f));
+				PlayFX(hitInfo.ImpactPoint);
 				bool bIsEnemyDead = enemy->Hit(false, CurrentXEnemy);
 				if (bIsEnemyDead)
 				{
@@ -532,19 +541,19 @@ void AGunPlayer::SetCurrentXNumber()
 	if (CurrentXNumber == 2)
 	{
 		shieldWidget->CurrentX(1);
-		CurrentXEnemy += 1;
+		CurrentXEnemy = 1;
 		UE_LOG(LogTemp, Warning, TEXT("Num1"));
 	}
 	else if (CurrentXNumber == 6)
 	{
 		shieldWidget->CurrentX(2);
-		CurrentXEnemy += 2;
+		CurrentXEnemy = 2;
 		UE_LOG(LogTemp, Warning, TEXT("Num2"));
 	}
 	else if (CurrentXNumber == 14)
 	{
 		shieldWidget->CurrentX(4);
-		CurrentXNumber += 4;
+		CurrentXEnemy = 4;
 		UE_LOG(LogTemp, Warning, TEXT("Num3"));
 	}
 }
@@ -565,6 +574,14 @@ void AGunPlayer::LeftGunToggle(bool value)
 		MotionLeft->SetVisibility(false, true);
 
 	}
+}
+
+void AGunPlayer::PlayFX(FVector playLoc)
+{
+	int32 i = FXAddress % 2;
+	FXAddress++;
+	FXarray[i]->SetActorLocation(playLoc);
+	FXarray[i]->PlayFX();
 }
 
 //FRotator AGunPlayer::BillboardWidgetComponent(AActor* camActor)
