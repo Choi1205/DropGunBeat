@@ -4,9 +4,9 @@
 #include "Enemy/EnemyScoreWidget.h"
 #include "Components/TextBlock.h"
 
-void UEnemyScoreWidget::ShowScore(int32 score)
+void UEnemyScoreWidget::ShowScore(int32 score, int32 multi)
 {
-	scoreBlock->SetText(FText::FromString(FString::FromInt(score)));
+	scoreBlock->SetText(FText::FromString(FString::FromInt(score * multi)));
 
 	if (score >= 400) {
 		scoreBlock->SetColorAndOpacity(FColor::Red);

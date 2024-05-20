@@ -23,5 +23,5 @@ public:
 
 	FTimerHandle showingTimer;
 
-	void ShowScore(int32 score);
+	void ShowScore(int32 score, int32 multi);
 };
