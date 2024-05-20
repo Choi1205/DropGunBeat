@@ -46,7 +46,8 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "MySettings", meta = (BindWidget))
 	class UTextBlock* X;
 
-	
+	UPROPERTY(EditAnywhere, Category="MySettings", meta=(BindWidgetAnim), Transient)
+	class UWidgetAnimation* anim_magnification;
 
 
 

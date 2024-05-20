@@ -4,6 +4,7 @@
 #include "shieldWidget.h"
 #include "Components/Image.h"
 #include <../../../../../../../Source/Runtime/UMG/Public/Components/TextBlock.h>
+#include <../../../../../../../Source/Runtime/UMG/Public/Animation/WidgetAnimation.h>
 
 
 void UshieldWidget::startShield()
@@ -47,7 +48,7 @@ void UshieldWidget::removeShield(int32 ShieldCount)
 	// 현재 점수에서 bulletCount만큼을 빼기
 	reShield = FMath::Clamp(reShield + ShieldCount, 0, 4);
 
-	FString ShieldString = FString::Printf(TEXT(" % d"), reShield);
+	FString ShieldString = FString::Printf(TEXT("%d"), reShield);
 	FText ShieldText = FText::FromString(ShieldString);
 	//UE_LOG(LogTemp, Warning, TEXT("remain"));
 	CurrentShield->SetText(ShieldText);
@@ -56,7 +57,8 @@ void UshieldWidget::removeShield(int32 ShieldCount)
 void UshieldWidget::CurrentX(int32 _CurrentX)
 {
 	reX = FMath::Clamp(reX + _CurrentX, 1, 8);
-	FString reXString = FString::Printf(TEXT(" % d"), reX);
+	FString reXString = FString::Printf(TEXT("%d"), reX);
 	FText reXText = FText::FromString(reXString);
 	NumberX->SetText(reXText);
+	PlayAnimationForward(anim_magnification, 2);
 }
