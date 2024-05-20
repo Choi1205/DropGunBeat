@@ -76,6 +76,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = VR)
 	class UInputAction* IA_LeftFire;
 
+	UPROPERTY(EditDefaultsOnly, Category = VR)
+	class UInputAction* IA_SpinGun;
+	
+	UPROPERTY(EditDefaultsOnly, Category = VR)
+	class UInputAction* IA_LeftSpinGun;
+
 	/*UPROPERTY(EditDefaultsOnly, Category = VR)
 	class UInputAction* IA_Reroad;*/
 
@@ -101,8 +107,16 @@ public:
 	void ONFire(const FInputActionValue& value);
 
 	void ONTurn(const FInputActionValue& value);
+
+	void ONLeftSpinGun(const FInputActionValue& value);
+	void ONRightSpinGun(const FInputActionValue& value);
+	
+
+
 	void ONReroad();
 	void ONLeftReroad();
+	
+	
 	//void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	// ¿À¹ö·¦

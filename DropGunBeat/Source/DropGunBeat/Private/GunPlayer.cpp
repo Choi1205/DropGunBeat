@@ -251,6 +251,16 @@ void AGunPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		enhancedInputComponent->BindAction(IA_Fire, ETriggerEvent::Started, this, &AGunPlayer::ONFire);
 
 		enhancedInputComponent->BindAction(IA_Turn, ETriggerEvent::Triggered, this, &AGunPlayer::ONTurn);
+
+		// ÃÑ È¸Àü
+		enhancedInputComponent->BindAction(IA_LeftSpinGun, ETriggerEvent::Triggered, this, &AGunPlayer::ONLeftSpinGun);
+		enhancedInputComponent->BindAction(IA_LeftSpinGun, ETriggerEvent::Completed, this, &AGunPlayer::ONLeftSpinGun);
+
+		enhancedInputComponent->BindAction(IA_SpinGun, ETriggerEvent::Triggered, this, &AGunPlayer::ONRightSpinGun);
+		enhancedInputComponent->BindAction(IA_SpinGun, ETriggerEvent::Completed, this, &AGunPlayer::ONRightSpinGun);
+		
+
+
 		//enhancedInputComponent->BindAction(IA_Reroad, ETriggerEvent::Started, this, &AGunPlayer::ONReroad);
 	}
 }
@@ -455,6 +465,35 @@ void AGunPlayer::ONTurn(const FInputActionValue& value)
 	float v = value.Get<float>();
 	AddControllerYawInput(v);
 }
+
+void AGunPlayer::ONLeftSpinGun(const FInputActionValue& value)
+{
+	if (value.Get<bool>())
+	{ 
+		float dt = GetWorld()->GetDeltaSeconds();
+		auto newRotation = MeshLeft->GetRelativeRotation().Quaternion() * FRotator(-360 * 4 * dt, 0, 0).Quaternion();
+		MeshLeft->SetRelativeRotation(newRotation);
+	}
+	else
+	{
+		MeshLeft->SetRelativeRotation(FRotator(5, 0, 180));
+	}
+}
+
+void AGunPlayer::ONRightSpinGun(const FInputActionValue& value)
+{
+	if (value.Get<bool>())
+	{
+		float dt = GetWorld()->GetDeltaSeconds();
+		auto newRotation = MeshRight->GetRelativeRotation().Quaternion() * FRotator(-360 * 4 * dt, 0, 0).Quaternion();
+		MeshRight->SetRelativeRotation(newRotation);
+	}
+	else
+	{
+		MeshRight->SetRelativeRotation(FRotator(5,0,180));
+	}
+}
+
 
 void AGunPlayer::ONReroad()
 {
