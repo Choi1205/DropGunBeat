@@ -130,8 +130,11 @@ public:
 	void shieldrecovery();
 
 	// ³ªÀÌ¾Æ°¡¶ó
+	UPROPERTY(EditAnywhere, Category="MySettings")
+	class UParticleSystem* explosionFX;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	class UNiagaraSystem* NI_Fire;
+	class UNiagaraSystem* NI_Arrow;
 
 	bool bshield = true; // ½¯µå
 	//bool bGunbullet = true; // ÃÑ¾Ë½î¸é ´Þµµ·Ï

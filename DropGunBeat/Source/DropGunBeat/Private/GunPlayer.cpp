@@ -32,6 +32,7 @@
 #include "CustomizeActor.h"
 #include "Components/SceneComponent.h"
 #include "BulletFXActor.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Particles/ParticleSystem.h>
 
 
 
@@ -299,9 +300,11 @@ void AGunPlayer::ONLeftFire(const FInputActionValue& value)
 			{
 				PlayerLeftWidget->remainBullet(-1);
 			}
-			if (NI_Fire != nullptr)
+			if (explosionFX != nullptr && NI_Arrow != nullptr)
 			{
-				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NI_Fire, leftScene->GetComponentLocation(), leftScene->GetComponentRotation());
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), explosionFX, leftScene->GetComponentLocation(), leftScene->GetComponentRotation() + FRotator(90, 0, 0));
+
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NI_Arrow, leftScene->GetComponentLocation(), leftScene->GetComponentRotation());
 			}
 
 			//bool isPressed = value.Get<bool>(); 
@@ -378,9 +381,12 @@ void AGunPlayer::ONFire(const FInputActionValue& value)
 			PlayerWidget->remainBullet(-1);
 			//UE_LOG(LogTemp, Warning, TEXT("remain-1"));
 		}
-		if (NI_Fire != nullptr)
+		if (explosionFX != nullptr && NI_Arrow != nullptr)
 		{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NI_Fire, rightScene->GetComponentLocation(), rightScene->GetComponentRotation()); //무기에붙여야함
+			
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), explosionFX, rightScene->GetComponentLocation(), rightScene->GetComponentRotation()+ FRotator(90,0,0));
+			
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NI_Arrow, rightScene->GetComponentLocation(), rightScene->GetComponentRotation());
 		}
 
 		//UE_LOG(LogTemp, Warning, TEXT("2222222"));
