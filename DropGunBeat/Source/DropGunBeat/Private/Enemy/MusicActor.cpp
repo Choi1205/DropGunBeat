@@ -55,6 +55,7 @@ float AMusicActor::GetBeatTime()
 
 float AMusicActor::BeatAccuracy()
 {
+	//beatTime = 60.0f / BPM;
 	float vaule = (currentTime / beatTime) * 100;
 	int32 v = ((int32)vaule) % 100;
 	float fv = (float)v / 100.0f;

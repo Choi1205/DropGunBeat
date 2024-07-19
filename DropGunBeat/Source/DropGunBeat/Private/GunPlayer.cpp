@@ -148,6 +148,8 @@ void AGunPlayer::BeginPlay()
 
 	SetStartLoc();
 
+	moveDist = FVector::Dist(startLoc, targetLoc)/endTime;
+
 	// 플레이어 이동속도
 	if (GetWorld()->GetMapName().Contains(FString("LoadingLevel"))) {
 		if (shieldWidget != nullptr)

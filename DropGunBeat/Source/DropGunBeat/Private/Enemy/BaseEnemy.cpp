@@ -16,6 +16,8 @@
 #include "Enemy/EnemyScoreWidget.h"
 #include "musicGameInstance.h"
 
+#define BULLETSPEED 1000.0f
+
 // Sets default values
 ABaseEnemy::ABaseEnemy()
 {
@@ -194,10 +196,19 @@ void ABaseEnemy::Shoot()
 {
 	if (!bIsFired && playerREF != nullptr && numToFire > fireCounter) {
 		laserPoint->Deactivate();
-		aimDir = playerREF->boxcomp->GetComponentLocation() - firePoint->GetComponentLocation() + FVector(16.0f, 0.0f, 0.0f);
+		//플레이어와 발사구 사이의 거리를 구함
+		float playerDist= (playerREF->GetActorLocation() - firePoint->GetComponentLocation()).Length();
+		//거리를 탄환의 속도로 나누어 도달 시간을 계산. 탄환의 속도는 1000.0f
+		float hitTime = playerDist / BULLETSPEED;
+		//플레이어의 이동 속도에 도달시간을 곱하여 예상 위치를 구한다.
+		FVector hitPoint = GetActorLocation() + GetActorForwardVector() * playerREF->moveDist;
+		//예상위치와 발사구의 위치를 통해 발사할 백터방향을 구하고, 플레이어 판정 크기만큼 보정한다.
+		aimDir = hitPoint - firePoint->GetComponentLocation() + FVector(16.0f, 0.0f, 0.0f);
+		//탄환을 발사한다.
 		FActorSpawnParameters params;
 		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		GetWorld()->SpawnActor<ABulletActor>(bulletFactory, firePoint->GetComponentLocation(), aimDir.Rotation(), params);
+
 		fireCounter++;
 		bIsFired = true;
 		FTimerHandle aimTimer;

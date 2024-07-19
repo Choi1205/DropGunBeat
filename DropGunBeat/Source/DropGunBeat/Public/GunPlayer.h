@@ -182,6 +182,8 @@ public:
 
 	void SetCurrentXNumber();
 
+	float moveDist;
+
 protected:
 	virtual void BeginPlay() override;
 
