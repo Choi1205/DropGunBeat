@@ -4,17 +4,3 @@
 #include "musicGameModeBase.h"
 #include "PlayerWidget.h"
 #include <../../../../../../../Source/Runtime/UMG/Public/Components/TextBlock.h>
-
-
-
-
-void AmusicGameModeBase::AddPoint(int32 count)
-{
-	
-
-
-}
-
-
-
-

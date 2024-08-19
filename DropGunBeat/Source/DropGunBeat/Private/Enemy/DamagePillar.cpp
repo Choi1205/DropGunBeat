@@ -1,5 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+// 플레이어가 충돌하면 데미지를 입히는 기둥 액터
 
 #include "Enemy/DamagePillar.h"
 #include "Components/BoxComponent.h"
@@ -10,7 +10,7 @@
 ADamagePillar::ADamagePillar()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	rootComp = CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
 	SetRootComponent(rootComp);
@@ -33,6 +33,8 @@ void ADamagePillar::BeginPlay()
 	
 	boxComp->OnComponentBeginOverlap.AddDynamic(this, &ADamagePillar::OnOverlaped);
 
+	//bIsNeedRepete는 연속배치용 변수. 언리얼에서 값을 변경해서 사용한다.
+	//true인 경우 배치된 기둥 뒤로 같은 크기의 기둥을 저정갯수, 지정간격으로 연속배치한다.
 	if (bIsNeedRepete) {
 		spawnLoc = GetActorLocation();
 		FActorSpawnParameters params;
@@ -43,23 +45,22 @@ void ADamagePillar::BeginPlay()
 			pillar->SetActorScale3D(GetActorScale3D());
 		}
 	}
-
 }
 
 // Called every frame
-void ADamagePillar::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+//void ADamagePillar::Tick(float DeltaTime)
+//{
+//	Super::Tick(DeltaTime);
+//
+//}
 
-}
-
+//충돌시 데미지 처리
 void ADamagePillar::OnOverlaped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AGunPlayer* playerREF = Cast<AGunPlayer>(OtherActor);
 	if (!bIsDamaged && playerREF != nullptr) {
 		bIsDamaged = true;
 		playerREF->OnDamaged();
-		//데미지 입히면 귀찮으니 테스트 동안 노데미지
 		GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateLambda([&]() {
 			Destroy();
 			}));

@@ -15,11 +15,8 @@ class DROPGUNBEAT_API AmusicGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 
 public:
-	void AddPoint(int32 count);
-	
 
 private:
-	int32 Point = 0;
 	
 protected:
 	

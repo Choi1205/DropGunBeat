@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+// 플레이어가 사격했을때 해당 위치에 폭발 이펙트를 재생한다.
+// 최적화를 하기 위해 플레이어가 이 액터가 플레이어가 사격한 위치로 이동해서 이펙트를 재생한다.
 
 #include "BulletFXActor.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -8,7 +9,7 @@
 ABulletFXActor::ABulletFXActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	rootComp = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
 	SetRootComponent(rootComp);
@@ -21,18 +22,18 @@ ABulletFXActor::ABulletFXActor()
 }
 
 // Called when the game starts or when spawned
-void ABulletFXActor::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
+//void ABulletFXActor::BeginPlay()
+//{
+//	Super::BeginPlay();
+//	
+//}
 
 // Called every frame
-void ABulletFXActor::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
+//void ABulletFXActor::Tick(float DeltaTime)
+//{
+//	Super::Tick(DeltaTime);
+//
+//}
 
 void ABulletFXActor::PlayFX()
 {

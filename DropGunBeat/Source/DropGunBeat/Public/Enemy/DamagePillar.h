@@ -30,7 +30,7 @@ protected:
 
 public:	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	//virtual void Tick(float DeltaTime) override;
 
 	bool bIsDamaged = false;
 
@@ -39,6 +39,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class ADamagePillar> pillarFactory;
+	//연속배치용 변수들. 레벨에 배치한 뒤 인스턴스에서 값을 변경해서 사용한다.
 	UPROPERTY(EditAnywhere)
 	bool bIsNeedRepete = false;
 	UPROPERTY(EditAnywhere)

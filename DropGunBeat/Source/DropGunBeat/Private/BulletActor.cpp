@@ -1,5 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+//에너미용 탄환 액터
 
 #include "BulletActor.h"
 #include "Components/SphereComponent.h"
@@ -55,7 +55,6 @@ void ABulletActor::CallHit(class UPrimitiveComponent* OverlappedComp, class AAct
 	AGunPlayer* playerREF = Cast<AGunPlayer>(OtherActor);
 	if (playerREF) {
 		playerREF->OnDamaged();
-		//이거 켜면 테스트 골치아프니까 나중에 켜자
 		UE_LOG(LogTemp, Warning, TEXT("HIT!!!"));
 		Destroy();
 	}

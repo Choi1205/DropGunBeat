@@ -1,5 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+// 기본이 되는 에너미. 리듬게임으로 치면 노트에 해당한다.
+// 체력은 직접 입력해야 하므로 체력 1,2,4인 3종류의 블루프린트를 만들어서 사용.
+// 조끼, 헬맷 컴포넌트에 스태틱매쉬를 집어넣어서 플레이어에게 체력이 다르다는 것을 표시
+// 대기시간, 이동방향, 이동속도를 가지고 있으며, 언리얼 상에서 값을 조정해서 사용한다.
 
 #include "Enemy/BaseEnemy.h"
 #include "Components/CapsuleComponent.h"
@@ -82,7 +85,7 @@ void ABaseEnemy::BeginPlay()
 void ABaseEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+	//에너미는 대기->이동->(조준->발사) 순서로 행동하며, ()부분은 발사 횟수만큼 반복한다.
 	switch (enemyState)
 	{
 	case EEnemyState::IDLE:
@@ -102,47 +105,28 @@ void ABaseEnemy::Tick(float DeltaTime)
 	}
 }
 
-// Called to bind functionality to input
-void ABaseEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
 void ABaseEnemy::FindPlayer()
 {
-	TArray<AGunPlayer*> players;
-
 	for(TActorIterator<AGunPlayer> iter(GetWorld()); iter; ++iter) {
-		players.Add(*iter);
-	}
-
-	if(players.Num() > 0){
-		playerREF = players[0];
-	}
-	else{
-		playerREF = nullptr;
+		playerREF = *iter;
 	}
 }
 
 void ABaseEnemy::FindMusic()
 {
-	TArray<AMusicActor*> musics;
-
 	for (TActorIterator<AMusicActor> iter(GetWorld()); iter; ++iter) {
-		musics.Add(*iter);
+		musicREF = *iter;
 	}
 
-	if (musics.Num() > 0) {
-		musicREF = musics[0];
+	if (musicREF) {
 		beatTime = musicREF->GetBeatTime();
 	}
 	else {
-		musicREF = nullptr;
 		beatTime = 1.0f;
 	}
 }
 
+//언리얼에서 입력된 대기시간이 종료되면 이동을 실시한다.
 void ABaseEnemy::Idle(float deltaTime)
 {
 	currentTimer = FMath::Min(currentTimer + deltaTime, idleCooldown);
@@ -155,9 +139,12 @@ void ABaseEnemy::Idle(float deltaTime)
 	}
 }
 
+//언리얼에서 입력한 이동 목표지점에 도달하면 조준을 시작한다.
 void ABaseEnemy::move(float deltaTime)
 {
 	if(FVector::Distance(GetActorLocation(), targetPlace) < 34.0f) {
+		//플레이어를 조준하는 레이저를 켠다
+		laserPoint->Activate(true);
 		enemyState = EEnemyState::AIM;
 	}
 	else {
@@ -167,31 +154,33 @@ void ABaseEnemy::move(float deltaTime)
 	}
 }
 
+//조준중에는 플레이어에게 붉은색 레이저로 탄환이 날아오는 방향을 표시한다.
 void ABaseEnemy::Aim(float deltaTime)
 {
 	if (numToFire > fireCounter) {
 		currentTimer = FMath::Min(currentTimer + deltaTime, fireCooldown);
 	}
-
+	//조준 시간이 끝나면 발사한다.
 	if (currentTimer == fireCooldown) {
 		currentTimer = 0.0f;
 		enemyState = EEnemyState::SHOOT;
 	}
 	else {
-		//플레이어를 조준하는 명령어를 넣기
+		//레이저 방향을 플레이어 카메라 쪽으로 변경한다.
 		if(playerREF != nullptr) {
 			aimDir = playerREF->boxcomp->GetComponentLocation() - GetActorLocation();
 			aimDir.Z = 0.0f;
 			SetActorRotation(aimDir.Rotation());
+			//플레이어 판정의 중앙을 노리면 시야에 방해가 되므로, 앞쪽을 노린다.
 			aimDir = playerREF->boxcomp->GetComponentLocation() - firePoint->GetComponentLocation() + FVector(16.0f, 0.0f, -5.0f);
 			if (numToFire > fireCounter) {
 				laserPoint->SetWorldRotation(aimDir.Rotation());
-				laserPoint->Activate(true);
 			}
 		}
 	}
 }
 
+//데드레커닝을 이용해서 예상 플레이어 위치를 구한 뒤 발사한다.
 void ABaseEnemy::Shoot()
 {
 	if (!bIsFired && playerREF != nullptr && numToFire > fireCounter) {
@@ -213,12 +202,14 @@ void ABaseEnemy::Shoot()
 		bIsFired = true;
 		FTimerHandle aimTimer;
 		GetWorldTimerManager().SetTimer(aimTimer, FTimerDelegate::CreateLambda([&]() {
+			laserPoint->Activate(true);
 			enemyState = EEnemyState::AIM;
 			bIsFired = false;
 			}), 2.0f, false);
 	}
 }
 
+//플레이어 공격을 받았을때 정확도에 따라서 다른 점수를 위젯으로 출력한다.
 bool ABaseEnemy::Hit(bool bIsPunch, int32 multiply)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), musicREF->BeatAccuracy());
@@ -239,7 +230,7 @@ bool ABaseEnemy::Hit(bool bIsPunch, int32 multiply)
 
 		if (enemyState != EEnemyState::DIE) {
 			currentHP--;
-
+			//예상과 다르게 정확도가 반대로 되고 있었다. 최적화 문제가 아니었을까 추정 중.
 			if (gi != nullptr && scoreWidget != nullptr) {
 				if (accuracy < 0.2) {
 					gi->currentScore += 400 * multiply;
@@ -256,7 +247,7 @@ bool ABaseEnemy::Hit(bool bIsPunch, int32 multiply)
 			}
 		}
 	}
-
+	//플레이어 점수 배율처리를 위해 죽었는지, 안죽었는지 리턴한다.
 	if (currentHP > 0) {
 		return false;
 	}
@@ -267,11 +258,13 @@ bool ABaseEnemy::Hit(bool bIsPunch, int32 multiply)
 	}
 }
 
+//FSM용 상태 리턴 함수
 EEnemyState ABaseEnemy::GetEnemyState()
 {
 	return enemyState;
 }
 
+//새로 생성되는 에너미의 이동 위치를 입력받기 위한 함수.
 void ABaseEnemy::SetTargetPlace(FVector value)
 {
 	targetPlace = value;
